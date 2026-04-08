@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { ApiHelper } from './api_helper';
 
 export class BasePage extends ApiHelper {
@@ -17,5 +17,21 @@ export class BasePage extends ApiHelper {
     await this.page.context().clearCookies();
     await this.page.evaluate(() => localStorage.clear());
     await this.page.evaluate(() => sessionStorage.clear());
+  }
+
+  async click(selector: string) {
+    await this.page.locator(selector).click();
+  }
+
+  async isVisible(selector: string) {
+    await expect(this.page.locator(selector)).toBeVisible();
+  }
+
+  async checkUrl(url: string) {
+    await expect(this.page).toHaveURL(url);
+  }
+
+  async scrollToBottom() {
+    await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   }
 }

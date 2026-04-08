@@ -5,13 +5,12 @@ import { CustomActions } from '../../../helper/custom_action';
 export class Header extends BasePage {
   protected readonly h1: Locator;
   protected readonly h2: Locator;
-  private actions: CustomActions;
+  protected actions: CustomActions;
 
   constructor(page: Page, path: string) {
     super(page, path);
     
     this.actions = new CustomActions();
-
     this.h1 = this.page.getByRole('heading', { level: 1 });
     this.h2 = this.page.getByRole('heading', { level: 2 });
   }
