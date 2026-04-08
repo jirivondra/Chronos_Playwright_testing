@@ -1,41 +1,29 @@
-import { Page, expect, Locator } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './base_page';
-import { loginPageData } from '../../../support/test-data/login_page_data';
-
+import { CustomActions } from '../../../helper/custom_action';
 
 export class Header extends BasePage {
+  protected readonly h1: Locator;
+  protected readonly h2: Locator;
+  private actions: CustomActions;
+
   constructor(page: Page, path: string) {
     super(page, path);
-  }
+    
+    this.actions = new CustomActions();
 
-  protected get h1(): Locator {
-    return this.page.getByRole('heading', { level: 1, name: loginPageData.h1 });
-  }
-
-  protected get h2(): Locator {
-    return this.page.getByRole('heading', { level: 2, name: loginPageData.h2 });
-  }
-
-  async checkVisibility(element: string) {
-    await expect(this.page.locator(element)).toBeVisible();
-  }
-
-  async checkNumberOfElement(element: string, number: number) {
-    await expect(this.page.locator(element)).toHaveCount(number);
-  }
-
-  async checkTextOfElement(element: string, text: string) {
-    await expect(this.page.locator(element)).toHaveText(text);
+    this.h1 = this.page.getByRole('heading', { level: 1 });
+    this.h2 = this.page.getByRole('heading', { level: 2 });
   }
 
   async checkH1(text: string) {
-    await expect(this.h1).toBeVisible();
-    await expect(this.h1).toHaveCount(1);
-    await expect(this.h1).toHaveText(text);
+    await this.actions.assertVisible(this.h1);
+    await this.actions.assertCount(this.h1, 1);
+    await this.actions.assertText(this.h1, text);
   }
 
   async checkH2(text: string) {
-    await expect(this.h2).toBeVisible();
-    await expect(this.h2).toHaveText(text);
+    await this.actions.assertVisible(this.h2);
+    await this.actions.assertText(this.h2, text);
   }
 }

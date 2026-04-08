@@ -1,7 +1,8 @@
 export const loginPageData = {
   h1: 'Chronos',
   h2: 'Welcome',
-  urlDashboard: '/dashboard.html'
+  urlDashboard: '/dashboard.html',
+  urlLoginPage: '/login'
 }
 
 export const loginCredentials = {
