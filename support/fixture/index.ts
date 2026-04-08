@@ -1,6 +1,6 @@
-import { mergeTests } from '@playwright/test';
-import { authFixtures } from './auth-fixtures';
+import { mergeTests } from '@playwright/test'
+import { authFixtures } from './auth-fixtures'
 
-export const test = mergeTests(authFixtures);
+export const test = mergeTests(authFixtures)
 
-export { expect } from '@playwright/test';
+export { expect } from '@playwright/test'
