@@ -14,6 +14,10 @@ export class CustomActions {
     await expect(locator).toHaveCount(count);
   }
 
+  async assertAttribute(locator: Locator, attribute: string, value: string) {
+    await expect(locator).toHaveAttribute(attribute, value);
+  }
+
   async clickElement(locator: Locator) {
     await locator.click();
   }
