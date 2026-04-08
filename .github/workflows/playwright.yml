@@ -12,6 +12,10 @@ jobs:
           node-version: lts/*
       - name: Install dependencies
         run: npm ci
+      - name: Check formatting (Prettier)
+        run: npm run format-check
+      - name: Check lint (ESLint)
+        run: npm run lint
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
