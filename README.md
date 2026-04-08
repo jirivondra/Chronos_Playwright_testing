@@ -32,6 +32,15 @@ npx playwright install
 | `npm run format`         | Format all files with Prettier           |
 | `npm run format-check`   | Check formatting without making changes  |
 
+Or using Taskfile:
+
+| Command               | Description                              |
+| --------------------- | ---------------------------------------- |
+| `task check`          | Run ESLint + Prettier check              |
+| `task fix`            | Auto-fix with Prettier + ESLint          |
+| `task format-check`   | Check formatting with Prettier           |
+| `task format-fix`     | Auto-fix formatting with Prettier        |
+
 ## Browsers
 
 Tests are configured to run on:
