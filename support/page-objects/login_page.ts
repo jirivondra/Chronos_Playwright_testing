@@ -27,12 +27,14 @@ export class LoginPage extends ToTopButton {
     this.passwordVisibleType = 'text'
   }
 
-  async fillUserName(userName: string) {
+  async fillUserName(userName: string): Promise<this> {
     await this.page.locator(this.userName).fill(userName)
+    return this
   }
 
-  async fillPassword(password: string) {
+  async fillPassword(password: string): Promise<this> {
     await this.page.locator(this.password).fill(password)
+    return this
   }
 
   async checkSignInButtonVisible() {
@@ -59,8 +61,9 @@ export class LoginPage extends ToTopButton {
     await this.actions.clickElement(this.passwordToggle)
   }
 
-  async clickSubmit() {
+  async clickSubmit(): Promise<this> {
     await this.click(this.submitButton)
+    return this
   }
 
   async login(userName: string, password: string, url: string) {

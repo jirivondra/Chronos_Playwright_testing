@@ -3,7 +3,7 @@ import { loginPageData, loginCredentials } from '../support/test-data/login_page
 import { contactMeInfo } from '../support/test-data/general'
 
 test.describe('Test Login page', () => {
-  test.describe('Atomic Test For login form', () => {
+  test.describe('Atomic Tests For Login Form', () => {
     test('Check H1 On Page Login', async ({ loginPage }) => {
       await loginPage.checkH1(loginPageData.h1)
     })
@@ -51,7 +51,7 @@ test.describe('Test Login page', () => {
     })
   })
 
-  test.describe('E2E Test For LogIn Page', () => {
+  test.describe('E2E Test For Login Page', () => {
     test('ToTop Button Full Flow', async ({ loginPage }) => {
       await loginPage.checkToTopButtonNotVisible()
       await loginPage.scrollToBottom()
