@@ -11,11 +11,13 @@ export class Footer extends Header {
     this.contactIcons = this.page.locator('footer a[aria-label]')
   }
 
-  async checkHeadingVisible() {
+  async checkHeadingVisible(): Promise<this> {
     await this.actions.assertVisible(this.heading)
+    return this
   }
 
-  async checkContactIconLink(url: string) {
+  async checkContactIconLink(url: string): Promise<this> {
     await this.actions.assertVisible(this.contactIcons.and(this.page.locator(`[href="${url}"]`)))
+    return this
   }
 }

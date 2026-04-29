@@ -11,6 +11,11 @@ export class CustomActions {
     return this
   }
 
+  async assertHidden(locator: Locator): Promise<this> {
+    await expect(locator).not.toBeVisible()
+    return this
+  }
+
   async assertText(locator: Locator, text: string): Promise<this> {
     await expect(locator).toHaveText(text)
     return this
@@ -28,6 +33,21 @@ export class CustomActions {
 
   async clickElement(locator: Locator): Promise<this> {
     await locator.click()
+    return this
+  }
+
+  async fillText(locator: Locator, text: string): Promise<this> {
+    await locator.fill(text)
+    return this
+  }
+
+  async assertDisabled(locator: Locator): Promise<this> {
+    await expect(locator).toBeDisabled()
+    return this
+  }
+
+  async assertEnabled(locator: Locator): Promise<this> {
+    await expect(locator).toBeEnabled()
     return this
   }
 }

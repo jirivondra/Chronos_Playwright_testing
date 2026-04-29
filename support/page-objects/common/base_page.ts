@@ -12,25 +12,32 @@ export class BasePage extends ApiHelper {
     this.actions = new CustomActions()
   }
 
-  async visit(params = '') {
+  async visit(params = ''): Promise<this> {
     await this.page.goto(this.path + params)
+    return this
   }
 
-  async clearCache() {
+  async clearCache(): Promise<this> {
     await this.page.context().clearCookies()
-    await this.page.evaluate(() => localStorage.clear())
-    await this.page.evaluate(() => sessionStorage.clear())
+    await this.page.evaluate(() => {
+      localStorage.clear()
+      sessionStorage.clear()
+    })
+    return this
   }
 
-  async click(selector: string) {
+  async click(selector: string): Promise<this> {
     await this.page.locator(selector).click()
+    return this
   }
 
-  async checkUrl(url: string) {
+  async checkUrl(url: string): Promise<this> {
     await this.actions.assertUrl(this.page, url)
+    return this
   }
 
-  async scrollToBottom() {
+  async scrollToBottom(): Promise<this> {
     await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    return this
   }
 }

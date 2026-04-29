@@ -70,3 +70,4 @@ ApiHelper → BasePage → Header → Footer → ToTopButton → [concrete page]
 @.claude/docs/fixtures.md
 @.claude/docs/test-structure.md
 @.claude/docs/test-data.md
+@.claude/docs/data-driven-tests.md

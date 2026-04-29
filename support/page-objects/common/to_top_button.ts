@@ -9,16 +9,19 @@ export class ToTopButton extends Footer {
     this.toTopButton = this.page.locator('#back-to-top')
   }
 
-  async checkToTopButtonVisible() {
+  async checkToTopButtonVisible(): Promise<this> {
     await this.actions.assertVisible(this.toTopButton)
     await expect(this.toTopButton).toHaveCSS('opacity', '1')
+    return this
   }
 
-  async checkToTopButtonNotVisible() {
+  async checkToTopButtonNotVisible(): Promise<this> {
     await expect(this.toTopButton).toHaveCSS('opacity', '0')
+    return this
   }
 
-  async clickToTopButton() {
+  async clickToTopButton(): Promise<this> {
     await this.actions.clickElement(this.toTopButton)
+    return this
   }
 }
