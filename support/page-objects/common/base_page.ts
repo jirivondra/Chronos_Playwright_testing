@@ -1,12 +1,15 @@
-import { Page, expect } from '@playwright/test'
+import { Page } from '@playwright/test'
 import { ApiHelper } from './api_helper'
+import { CustomActions } from '../../../helper/custom_action'
 
 export class BasePage extends ApiHelper {
   protected page: Page
+  protected actions: CustomActions
 
   constructor(page: Page, path: string) {
     super(path)
     this.page = page
+    this.actions = new CustomActions()
   }
 
   async visit(params = '') {
@@ -23,12 +26,8 @@ export class BasePage extends ApiHelper {
     await this.page.locator(selector).click()
   }
 
-  async isVisible(selector: string) {
-    await expect(this.page.locator(selector)).toBeVisible()
-  }
-
   async checkUrl(url: string) {
-    await expect(this.page).toHaveURL(url)
+    await this.actions.assertUrl(this.page, url)
   }
 
   async scrollToBottom() {
