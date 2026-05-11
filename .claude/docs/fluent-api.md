@@ -36,10 +36,10 @@ async fillUserName(userName: string): Promise<this> {
 ```ts
 await loginPage
   .visit()
-  .then(p => p.fillUserName('admin'))
-  .then(p => p.fillPassword('secret'))
-  .then(p => p.clickLoginButton())
-  .then(p => p.checkUrl('/dashboard'))
+  .then((p) => p.fillUserName('admin'))
+  .then((p) => p.fillPassword('secret'))
+  .then((p) => p.clickLoginButton())
+  .then((p) => p.checkUrl('/dashboard'))
 ```
 
 ## Rules

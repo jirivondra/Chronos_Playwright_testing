@@ -10,14 +10,14 @@
 
 ## Available methods
 
-| Method | Playwright equivalent | Description |
-|---|---|---|
-| `assertVisible(locator)` | `expect(locator).toBeVisible()` | Asserts the element is visible in the DOM |
-| `assertText(locator, text)` | `expect(locator).toHaveText(text)` | Asserts the element's text content equals `text` |
-| `assertCount(locator, count)` | `expect(locator).toHaveCount(count)` | Asserts the number of matching elements |
-| `assertAttribute(locator, attribute, value)` | `expect(locator).toHaveAttribute(attribute, value)` | Asserts an HTML attribute value |
-| `assertUrl(page, url)` | `expect(page).toHaveURL(url)` | Asserts the current page URL |
-| `clickElement(locator)` | `locator.click()` | Clicks the element |
+| Method                                       | Playwright equivalent                               | Description                                      |
+| -------------------------------------------- | --------------------------------------------------- | ------------------------------------------------ |
+| `assertVisible(locator)`                     | `expect(locator).toBeVisible()`                     | Asserts the element is visible in the DOM        |
+| `assertText(locator, text)`                  | `expect(locator).toHaveText(text)`                  | Asserts the element's text content equals `text` |
+| `assertCount(locator, count)`                | `expect(locator).toHaveCount(count)`                | Asserts the number of matching elements          |
+| `assertAttribute(locator, attribute, value)` | `expect(locator).toHaveAttribute(attribute, value)` | Asserts an HTML attribute value                  |
+| `assertUrl(page, url)`                       | `expect(page).toHaveURL(url)`                       | Asserts the current page URL                     |
+| `clickElement(locator)`                      | `locator.click()`                                   | Clicks the element                               |
 
 ## How to use
 

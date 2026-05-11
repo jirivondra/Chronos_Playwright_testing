@@ -75,7 +75,7 @@ export class SiteBarMenu extends AppBar {
   async checkVersionTitle(): Promise<this> {
     await this.actions
       .assertVisible(this.appVerstionTitle)
-      .then(a => a.assertText(this.appVerstionTitle, this.appVerstionTitleText))
+      .then((a) => a.assertText(this.appVerstionTitle, this.appVerstionTitleText))
     return this
   }
 
@@ -97,42 +97,40 @@ export class SiteBarMenu extends AppBar {
   async checkLogoExpandedVisible(): Promise<this> {
     await this.actions
       .assertVisible(this.logoTitle)
-      .then(a => a.assertText(this.logoTitle, this.logoTitleText))
-      .then(a => a.assertVisible(this.logoSubtitle))
-      .then(a => a.assertText(this.logoSubtitle, this.logoSubtitleText))
+      .then((a) => a.assertText(this.logoTitle, this.logoTitleText))
+      .then((a) => a.assertVisible(this.logoSubtitle))
+      .then((a) => a.assertText(this.logoSubtitle, this.logoSubtitleText))
     return this
   }
 
   async checkLogoCollapsedHidden(): Promise<this> {
-    await this.actions
-      .assertHidden(this.logoTitle)
-      .then(a => a.assertHidden(this.logoSubtitle))
+    await this.actions.assertHidden(this.logoTitle).then((a) => a.assertHidden(this.logoSubtitle))
     return this
   }
 
   async checkNavExpandedVisible(): Promise<this> {
     await this.actions
       .assertVisible(this.navDashboardIcon)
-      .then(a => a.assertVisible(this.navDashboardLabel))
-      .then(a => a.assertVisible(this.navTasksIcon))
-      .then(a => a.assertVisible(this.navTasksLabel))
-      .then(a => a.assertVisible(this.navCalendarIcon))
-      .then(a => a.assertVisible(this.navCalendarLabel))
-      .then(a => a.assertVisible(this.navArchiveIcon))
-      .then(a => a.assertVisible(this.navArchiveLabel))
+      .then((a) => a.assertVisible(this.navDashboardLabel))
+      .then((a) => a.assertVisible(this.navTasksIcon))
+      .then((a) => a.assertVisible(this.navTasksLabel))
+      .then((a) => a.assertVisible(this.navCalendarIcon))
+      .then((a) => a.assertVisible(this.navCalendarLabel))
+      .then((a) => a.assertVisible(this.navArchiveIcon))
+      .then((a) => a.assertVisible(this.navArchiveLabel))
     return this
   }
 
   async checkNavCollapsedVisible(): Promise<this> {
     await this.actions
       .assertVisible(this.navDashboardIcon)
-      .then(a => a.assertHidden(this.navDashboardLabel))
-      .then(a => a.assertVisible(this.navTasksIcon))
-      .then(a => a.assertHidden(this.navTasksLabel))
-      .then(a => a.assertVisible(this.navCalendarIcon))
-      .then(a => a.assertHidden(this.navCalendarLabel))
-      .then(a => a.assertVisible(this.navArchiveIcon))
-      .then(a => a.assertHidden(this.navArchiveLabel))
+      .then((a) => a.assertHidden(this.navDashboardLabel))
+      .then((a) => a.assertVisible(this.navTasksIcon))
+      .then((a) => a.assertHidden(this.navTasksLabel))
+      .then((a) => a.assertVisible(this.navCalendarIcon))
+      .then((a) => a.assertHidden(this.navCalendarLabel))
+      .then((a) => a.assertVisible(this.navArchiveIcon))
+      .then((a) => a.assertHidden(this.navArchiveLabel))
     return this
   }
 }

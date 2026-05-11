@@ -23,10 +23,10 @@ Assertions and element interactions inside page objects are delegated to `Custom
 
 A class property can hold either a CSS/selector **string** or a resolved **Locator**. The choice follows where the property is consumed:
 
-| Type | When to use | Visibility |
-|---|---|---|
-| `string` | Passed to `BasePage` methods (`click`, `isVisible`) or used to build a `Locator` via `this.page.locator()` | `protected` when subclasses need it, otherwise `private` |
-| `Locator` | Passed directly to `this.actions.*` methods (`assertVisible`, `assertText`, `assertAttribute`, `clickElement`) | `private readonly` |
+| Type      | When to use                                                                                                    | Visibility                                               |
+| --------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `string`  | Passed to `BasePage` methods (`click`, `isVisible`) or used to build a `Locator` via `this.page.locator()`     | `protected` when subclasses need it, otherwise `private` |
+| `Locator` | Passed directly to `this.actions.*` methods (`assertVisible`, `assertText`, `assertAttribute`, `clickElement`) | `private readonly`                                       |
 
 A `string` property can serve as the source for a sibling `Locator` property when both uses are needed:
 

@@ -7,7 +7,6 @@ import { test, expect } from '../support/fixture'
 import { dashboardPageData } from '../support/test-data/dashboard_page_data'
 
 test.describe('Test Dashboard page', () => {
-
   test.describe('Atomic Tests For Header', () => {
     test('Check H1 On Page Dashboard', async ({ dashboardPage }) => {
       await dashboardPage.checkH1(dashboardPageData.h1)
@@ -25,7 +24,6 @@ test.describe('Test Dashboard page', () => {
       await dashboardPage.checkResult()
     })
   })
-
 })
 ```
 
@@ -36,11 +34,11 @@ test.describe('Test Dashboard page', () => {
 
 ### Describe block structure
 
-| Level | Format | Example |
-|---|---|---|
-| Outer | `'Test [Name] page'` | `'Test Login page'` |
+| Level          | Format                         | Example                     |
+| -------------- | ------------------------------ | --------------------------- |
+| Outer          | `'Test [Name] page'`           | `'Test Login page'`         |
 | Inner — atomic | `'Atomic Tests For [Section]'` | `'Atomic Tests For Footer'` |
-| Inner — E2E | `'E2E Test For [Page]'` | `'E2E Test For Login Page'` |
+| Inner — E2E    | `'E2E Test For [Page]'`        | `'E2E Test For Login Page'` |
 
 ### Test naming
 

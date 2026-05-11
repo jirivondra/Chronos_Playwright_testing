@@ -35,9 +35,9 @@ test.describe('Login Page - Negative Scenarios', () => {
     test(`Login With ${description} Stays On Login Page`, async ({ loginPage }) => {
       await loginPage
         .fillUserName(username)
-        .then(l => l.fillPassword(password))
-        .then(l => l.clickSubmit())
-        .then(l => l.checkUrl(loginPageData.urlLoginPage))
+        .then((l) => l.fillPassword(password))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkUrl(loginPageData.urlLoginPage))
     })
   })
 })
@@ -47,10 +47,10 @@ The test name is built from the template literal — each generated test appears
 
 ## Naming the describe block and test
 
-| Part | Format | Example |
-|---|---|---|
-| `describe` | `'[Page] - [Scenario group]'` | `'Login Page - Negative Scenarios'` |
-| `test` | template literal with `description` as the variable part | `` `Login With ${description} Stays On Login Page` `` |
+| Part       | Format                                                   | Example                                               |
+| ---------- | -------------------------------------------------------- | ----------------------------------------------------- |
+| `describe` | `'[Page] - [Scenario group]'`                            | `'Login Page - Negative Scenarios'`                   |
+| `test`     | template literal with `description` as the variable part | `` `Login With ${description} Stays On Login Page` `` |
 
 The static part of the test name describes the shared behaviour; `description` identifies what differs between cases.
 
@@ -62,6 +62,7 @@ Use data-driven iteration when:
 - The number of cases is likely to grow (e.g. validation error messages, permission combinations).
 
 Do not use it when:
+
 - Each case requires meaningfully different assertions or setup steps — write separate named tests instead.
 - There is only one case — a plain test with a descriptive name is clearer.
 

@@ -1,5 +1,9 @@
 import { test, expect } from '../../support/fixture'
-import { loginPageData, loginCredentials, negativeLoginCases } from '../../support/test-data/login_page_data'
+import {
+  loginPageData,
+  loginCredentials,
+  negativeLoginCases,
+} from '../../support/test-data/login_page_data'
 import { contactMeInfo } from '../../support/test-data/general'
 
 test.describe('Test Login page', () => {
@@ -51,27 +55,27 @@ test.describe('Test Login page', () => {
     test('ToTop Button Full Flow', async ({ loginPage }) => {
       await loginPage
         .checkToTopButtonNotVisible()
-        .then(l => l.scrollToBottom())
-        .then(l => l.checkToTopButtonVisible())
-        .then(l => l.clickToTopButton())
-        .then(l => l.checkToTopButtonNotVisible())
+        .then((l) => l.scrollToBottom())
+        .then((l) => l.checkToTopButtonVisible())
+        .then((l) => l.clickToTopButton())
+        .then((l) => l.checkToTopButtonNotVisible())
     })
 
     test('Show And Hide Password', async ({ loginPage }) => {
       await loginPage
         .checkPasswordIsHidden()
-        .then(l => l.clickPasswordToggle())
-        .then(l => l.checkPasswordIsVisible())
-        .then(l => l.clickPasswordToggle())
-        .then(l => l.checkPasswordIsHidden())
+        .then((l) => l.clickPasswordToggle())
+        .then((l) => l.checkPasswordIsVisible())
+        .then((l) => l.clickPasswordToggle())
+        .then((l) => l.checkPasswordIsHidden())
     })
 
     test('Login With Correct Credentials', async ({ loginPage }) => {
       await loginPage
         .fillUserName(loginCredentials.validUser.username)
-        .then(l => l.fillPassword(loginCredentials.validUser.password))
-        .then(l => l.clickSubmit())
-        .then(l => l.checkUrl(loginPageData.urlDashboard))
+        .then((l) => l.fillPassword(loginCredentials.validUser.password))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkUrl(loginPageData.urlDashboard))
     })
   })
 
@@ -80,9 +84,9 @@ test.describe('Test Login page', () => {
       test(`Login With ${description} Stays On Login Page`, async ({ loginPage }) => {
         await loginPage
           .fillUserName(username)
-          .then(l => l.fillPassword(password))
-          .then(l => l.clickSubmit())
-          .then(l => l.checkUrl(loginPageData.urlLoginPage))
+          .then((l) => l.fillPassword(password))
+          .then((l) => l.clickSubmit())
+          .then((l) => l.checkUrl(loginPageData.urlLoginPage))
       })
     })
   })
