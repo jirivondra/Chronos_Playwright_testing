@@ -18,6 +18,12 @@ tasks:
     desc: Show HTML report from last run
     cmd: npm run test_report
 
+  report:
+    desc: Run all tests and open HTML report
+    cmds:
+      - task: run-test
+      - task: test-report
+
   # --- Code quality ---
   lint:
     desc: Check code with ESLint

@@ -2,7 +2,8 @@ export const loginPageData = {
   h1: 'Chronos',
   h2: 'Welcome',
   urlDashboard: '/dashboard.html',
-  urlLoginPage: '/login',
+  urlLoginPage: '/login.html',
+  urlLogoutPage: '/logout.html',
 }
 
 export const loginCredentials = {
@@ -15,3 +16,8 @@ export const loginCredentials = {
     password: 'wrong',
   },
 }
+
+export const negativeLoginCases = [
+  { description: 'Invalid Credentials', username: 'wrong', password: 'wrong' },
+  { description: 'Empty Credentials', username: '', password: '' },
+]

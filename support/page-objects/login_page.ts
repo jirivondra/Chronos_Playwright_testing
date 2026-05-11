@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test'
 import { ToTopButton } from './common/to_top_button'
+import { DashboardPage } from './dashboard_page'
 
 export class LoginPage extends ToTopButton {
   protected userName: string
@@ -37,28 +38,34 @@ export class LoginPage extends ToTopButton {
     return this
   }
 
-  async checkSignInButtonVisible() {
+  async checkSignInButtonVisible(): Promise<this> {
     await this.actions.assertVisible(this.signInButton)
+    return this
   }
 
-  async checkCreateAccountVisible() {
+  async checkCreateAccountVisible(): Promise<this> {
     await this.actions.assertVisible(this.createAccountLink)
+    return this
   }
 
-  async checkForgotAccessVisible() {
+  async checkForgotAccessVisible(): Promise<this> {
     await this.actions.assertVisible(this.forgetAccessLink)
+    return this
   }
 
-  async checkPasswordIsHidden() {
+  async checkPasswordIsHidden(): Promise<this> {
     await this.actions.assertAttribute(this.passwordInput, 'type', this.passwordHiddenType)
+    return this
   }
 
-  async checkPasswordIsVisible() {
+  async checkPasswordIsVisible(): Promise<this> {
     await this.actions.assertAttribute(this.passwordInput, 'type', this.passwordVisibleType)
+    return this
   }
 
-  async clickPasswordToggle() {
+  async clickPasswordToggle(): Promise<this> {
     await this.actions.clickElement(this.passwordToggle)
+    return this
   }
 
   async clickSubmit(): Promise<this> {
@@ -71,5 +78,6 @@ export class LoginPage extends ToTopButton {
     await this.fillPassword(password)
     await this.clickSubmit()
     await this.checkUrl(url)
+    return new DashboardPage(this.page)
   }
 }

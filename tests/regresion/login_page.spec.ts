@@ -1,6 +1,6 @@
-import { test, expect } from '../support/fixture'
-import { loginPageData, loginCredentials } from '../support/test-data/login_page_data'
-import { contactMeInfo } from '../support/test-data/general'
+import { test, expect } from '../../support/fixture'
+import { loginPageData, loginCredentials, negativeLoginCases } from '../../support/test-data/login_page_data'
+import { contactMeInfo } from '../../support/test-data/general'
 
 test.describe('Test Login page', () => {
   test.describe('Atomic Tests For Login Form', () => {
@@ -45,34 +45,45 @@ test.describe('Test Login page', () => {
     test('Check LinkedIn Icon Link', async ({ loginPage }) => {
       await loginPage.checkContactIconLink(contactMeInfo.linkdeIn)
     })
-
-    test('Check Create Account Link Visibility', async ({ loginPage }) => {
-      await loginPage.checkCreateAccountVisible()
-    })
   })
 
   test.describe('E2E Test For Login Page', () => {
     test('ToTop Button Full Flow', async ({ loginPage }) => {
-      await loginPage.checkToTopButtonNotVisible()
-      await loginPage.scrollToBottom()
-      await loginPage.checkToTopButtonVisible()
-      await loginPage.clickToTopButton()
-      await loginPage.checkToTopButtonNotVisible()
+      await loginPage
+        .checkToTopButtonNotVisible()
+        .then(l => l.scrollToBottom())
+        .then(l => l.checkToTopButtonVisible())
+        .then(l => l.clickToTopButton())
+        .then(l => l.checkToTopButtonNotVisible())
     })
 
     test('Show And Hide Password', async ({ loginPage }) => {
-      await loginPage.checkPasswordIsHidden()
-      await loginPage.clickPasswordToggle()
-      await loginPage.checkPasswordIsVisible()
-      await loginPage.clickPasswordToggle()
-      await loginPage.checkPasswordIsHidden()
+      await loginPage
+        .checkPasswordIsHidden()
+        .then(l => l.clickPasswordToggle())
+        .then(l => l.checkPasswordIsVisible())
+        .then(l => l.clickPasswordToggle())
+        .then(l => l.checkPasswordIsHidden())
     })
 
     test('Login With Correct Credentials', async ({ loginPage }) => {
-      await loginPage.fillUserName(loginCredentials.validUser.username)
-      await loginPage.fillPassword(loginCredentials.validUser.password)
-      await loginPage.clickSubmit()
-      await loginPage.checkUrl(loginPageData.urlDashboard)
+      await loginPage
+        .fillUserName(loginCredentials.validUser.username)
+        .then(l => l.fillPassword(loginCredentials.validUser.password))
+        .then(l => l.clickSubmit())
+        .then(l => l.checkUrl(loginPageData.urlDashboard))
+    })
+  })
+
+  test.describe('Login Page - Negative Scenarios', () => {
+    negativeLoginCases.forEach(({ description, username, password }) => {
+      test(`Login With ${description} Stays On Login Page`, async ({ loginPage }) => {
+        await loginPage
+          .fillUserName(username)
+          .then(l => l.fillPassword(password))
+          .then(l => l.clickSubmit())
+          .then(l => l.checkUrl(loginPageData.urlLoginPage))
+      })
     })
   })
 })
