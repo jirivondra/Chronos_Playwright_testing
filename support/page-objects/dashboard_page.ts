@@ -1,4 +1,4 @@
-import { Page, Locator, Request } from '@playwright/test'
+import { Page, Locator, expect } from '@playwright/test'
 import { SiteBarMenu } from './common/site_bar_menu'
 import { NewTaskPage } from './new_task_page'
 
@@ -58,9 +58,12 @@ export class DashboardPage extends SiteBarMenu {
     return new NewTaskPage(this.page)
   }
 
-  async clickButtonNewTaskAndWaitForRequest(urlPattern: string | RegExp): Promise<Request> {
-    const requestPromise = this.page.waitForRequest(urlPattern)
+  async checkNewTaskNavigationRequest(): Promise<this> {
+    const requestPromise = this.page.waitForRequest(/edit-task/)
     await this.actions.clickElement(this.newTaskButton)
-    return await requestPromise
+    const request = await requestPromise
+    expect(request.url()).toContain('edit-task')
+    expect(request.method()).toBe('GET')
+    return this
   }
 }
