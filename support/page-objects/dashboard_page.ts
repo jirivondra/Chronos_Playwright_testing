@@ -10,6 +10,7 @@ export class DashboardPage extends SiteBarMenu {
   private readonly doneListTaskTitle: Locator
   private readonly taskGroup: Locator
   private readonly checkboxInput = 'input[type="checkbox"]'
+  private readonly expandOpenListButton: Locator
 
   constructor(page: Page) {
     super(page, '/dashboard.html')
@@ -19,6 +20,7 @@ export class DashboardPage extends SiteBarMenu {
     this.openListTaskTitle = this.openList.locator('h4')
     this.doneListTaskTitle = this.doneList.locator('h4')
     this.taskGroup = page.locator('.group')
+    this.expandOpenListButton = page.getByRole('button', { name: /Zobrazit všechny/ })
   }
 
   private taskInOpenSection(taskName: string): Locator {
@@ -43,7 +45,14 @@ export class DashboardPage extends SiteBarMenu {
     return this
   }
 
+  private async expandOpenListIfNeeded(): Promise<void> {
+    if (await this.expandOpenListButton.isVisible()) {
+      await this.actions.clickElement(this.expandOpenListButton)
+    }
+  }
+
   async checkTaskInOpenSection(taskName: string): Promise<this> {
+    await this.expandOpenListIfNeeded()
     await this.actions.assertVisible(this.taskInOpenSection(taskName))
     return this
   }
