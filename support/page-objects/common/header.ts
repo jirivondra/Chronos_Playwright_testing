@@ -14,13 +14,13 @@ export class Header extends BasePage {
   async checkH1(text: string): Promise<this> {
     await this.actions
       .assertVisible(this.h1)
-      .then(a => a.assertCount(this.h1, 1))
-      .then(a => a.assertText(this.h1, text))
+      .then((a) => a.assertCount(this.h1, 1))
+      .then((a) => a.assertText(this.h1, text))
     return this
   }
 
   async checkH2(text: string): Promise<this> {
-    await this.actions.assertVisible(this.h2).then(a => a.assertText(this.h2, text))
+    await this.actions.assertVisible(this.h2).then((a) => a.assertText(this.h2, text))
     return this
   }
 }

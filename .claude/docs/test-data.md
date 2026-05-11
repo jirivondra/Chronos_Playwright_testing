@@ -4,10 +4,10 @@ Test data files live in `support/test-data/`. They contain plain TypeScript obje
 
 ## File naming
 
-| Situation | Convention | Example |
-|---|---|---|
-| Data specific to one page | `<page-name>_data.ts` | `login_page_data.ts` |
-| Data shared across multiple pages | descriptive noun | `general.ts` |
+| Situation                         | Convention            | Example              |
+| --------------------------------- | --------------------- | -------------------- |
+| Data specific to one page         | `<page-name>_data.ts` | `login_page_data.ts` |
+| Data shared across multiple pages | descriptive noun      | `general.ts`         |
 
 ## Static data
 

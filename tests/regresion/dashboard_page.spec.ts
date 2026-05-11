@@ -1,4 +1,4 @@
-import { test, expect } from '../../support/fixture'
+import { test } from '../../support/fixture'
 import { loginPageData } from '../../support/test-data/login_page_data'
 
 test.describe('Test Dashboard Page', () => {
@@ -18,17 +18,13 @@ test.describe('Test Dashboard Page', () => {
     })
 
     test('New Task Button Triggers Navigation Request', async ({ dashboardPage }) => {
-      const request = await dashboardPage.clickButtonNewTaskAndWaitForRequest(/edit-task/)
-      expect(request.url()).toContain('edit-task')
-      expect(request.method()).toBe('GET')
+      await dashboardPage.checkNewTaskNavigationRequest()
     })
   })
 
   test.describe('E2E Test For Logout', () => {
     test('Logout Redirects To Logout Page', async ({ dashboardPage }) => {
-      await dashboardPage
-        .clickLogout()
-        .then(d => d.checkUrl(loginPageData.urlLogoutPage))
+      await dashboardPage.clickLogout().then((d) => d.checkUrl(loginPageData.urlLogoutPage))
     })
   })
 
@@ -37,12 +33,12 @@ test.describe('Test Dashboard Page', () => {
       const { dashboardPage, taskName } = dashboardWithTask
       await dashboardPage
         .checkTaskInOpenSection(taskName)
-        .then(d => d.toggleTask(taskName))
-        .then(d => d.checkTaskInFinishSection(taskName))
-        .then(d => d.toggleTask(taskName))
-        .then(d => d.checkTaskInOpenSection(taskName))
-        .then(d => d.toggleTask(taskName))
-        .then(d => d.checkTaskInFinishSection(taskName))
+        .then((d) => d.toggleTask(taskName))
+        .then((d) => d.checkTaskInFinishSection(taskName))
+        .then((d) => d.toggleTask(taskName))
+        .then((d) => d.checkTaskInOpenSection(taskName))
+        .then((d) => d.toggleTask(taskName))
+        .then((d) => d.checkTaskInFinishSection(taskName))
     })
   })
 })

@@ -10,13 +10,13 @@
 
 ## Available methods
 
-| Method | Signature | Description |
-|---|---|---|
-| `get` | `get(endpoint: string)` | Sends a GET request |
-| `post` | `post(endpoint: string, body?: object)` | Sends a POST request with an optional JSON body |
-| `put` | `put(endpoint: string, body?: object)` | Sends a PUT request with an optional JSON body |
-| `delete` | `delete(endpoint: string)` | Sends a DELETE request |
-| `apiRequest` | `apiRequest(method, endpoint, body?)` | Generic dispatcher — use when the method is determined at runtime |
+| Method       | Signature                               | Description                                                       |
+| ------------ | --------------------------------------- | ----------------------------------------------------------------- |
+| `get`        | `get(endpoint: string)`                 | Sends a GET request                                               |
+| `post`       | `post(endpoint: string, body?: object)` | Sends a POST request with an optional JSON body                   |
+| `put`        | `put(endpoint: string, body?: object)`  | Sends a PUT request with an optional JSON body                    |
+| `delete`     | `delete(endpoint: string)`              | Sends a DELETE request                                            |
+| `apiRequest` | `apiRequest(method, endpoint, body?)`   | Generic dispatcher — use when the method is determined at runtime |
 
 All methods return `Promise<Response>` (native `fetch` response). `get`, `post`, `put`, and `delete` are `protected` — accessible only within page objects. `apiRequest` is `public`.
 
