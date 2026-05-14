@@ -1,10 +1,32 @@
 import { test } from '../../support/fixture'
 import { loginPageData } from '../../support/test-data/login_page_data'
+import { dashboardPageData } from '../../support/test-data/dashboard_page_data'
 
 test.describe('Test Dashboard Page', () => {
   test.describe('Atomic Tests For Dashboard', () => {
+    let openTaskCount:  number
+
+    test.beforeEach(async ({ dashboardPage }) => {
+      openTaskCount = await dashboardPage.countOpenTasks()
+    })
+
     test('Check New Task Button Visibility', async ({ dashboardPage }) => {
       await dashboardPage.checkNewTaskButtonIsVisible()
+    })
+
+    test('Check Empty Open Section', async ({ dashboardPage }) => {
+      test.skip(openTaskCount > dashboardPageData.emptyListCount)
+      await dashboardPage.checkEmptyOpenSection()
+    })
+
+    test('Check Expand Button Is Visible', async ({ dashboardPage }) => {
+      test.skip(openTaskCount <= dashboardPageData.taskPreviewLimit)
+      await dashboardPage.checkExpandButtonVisible()
+    })
+
+    test('Check Expand Button Is Not Visible', async ({ dashboardPage }) => {
+      test.skip(openTaskCount > dashboardPageData.taskPreviewLimit)
+      await dashboardPage.checkExpandButtonNotVisible()
     })
   })
 
