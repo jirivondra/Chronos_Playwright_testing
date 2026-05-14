@@ -71,3 +71,4 @@ ApiHelper → BasePage → Header → Footer → ToTopButton → [concrete page]
 @.claude/docs/test-structure.md
 @.claude/docs/test-data.md
 @.claude/docs/data-driven-tests.md
+@.claude/docs/conditional-skip.md
