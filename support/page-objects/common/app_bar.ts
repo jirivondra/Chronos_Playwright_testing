@@ -11,7 +11,7 @@ export class AppBar extends ToTopButton {
   }
 
   async clickLogout(): Promise<LogoutPage> {
-    await this.actions.clickElement(this.logoutButton)
+    await this.logoutButton.click()
     return new LogoutPage(this.page)
   }
 }

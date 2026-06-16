@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test'
+import { Page, Locator, expect } from '@playwright/test'
 import { AppBar } from './app_bar'
 
 export class SiteBarMenu extends AppBar {
@@ -50,12 +50,12 @@ export class SiteBarMenu extends AppBar {
   }
 
   async checkVisibilityForOpenMenu(): Promise<this> {
-    await this.actions.assertVisible(this.openMenuButton)
+    await expect(this.openMenuButton).toBeVisible()
     return this
   }
 
   async checkVisibilityForCloseMenu(): Promise<this> {
-    await this.actions.assertHidden(this.openMenuButton)
+    await expect(this.openMenuButton).not.toBeVisible()
     return this
   }
 
@@ -64,73 +64,70 @@ export class SiteBarMenu extends AppBar {
     await this.checkLogoExpandedVisible()
     await this.checkVersionOfAppIsVisible()
     await this.checkNavExpandedVisible()
-    await this.actions.clickElement(this.buttonOpenAndClosseSiteMenu)
+    await this.buttonOpenAndClosseSiteMenu.click()
     await this.checkLogoCollapsedHidden()
     await this.checkVersionOfAppIsNotVisible()
     await this.checkNavCollapsedVisible()
-    await this.actions.clickElement(this.buttonOpenAndClosseSiteMenu)
+    await this.buttonOpenAndClosseSiteMenu.click()
     return this
   }
 
   async checkVersionTitle(): Promise<this> {
-    await this.actions
-      .assertVisible(this.appVerstionTitle)
-      .then((a) => a.assertText(this.appVerstionTitle, this.appVerstionTitleText))
+    await expect.soft(this.appVerstionTitle).toBeVisible()
+    await expect.soft(this.appVerstionTitle).toHaveText(this.appVerstionTitleText)
     return this
   }
 
   async checkVersionOfAppIsVisible(): Promise<this> {
-    await this.actions.assertVisible(this.appVerstion)
+    await expect(this.appVerstion).toBeVisible()
     return this
   }
 
   async checkVersionOfAppIsNotVisible(): Promise<this> {
-    await this.actions.assertHidden(this.appVerstion)
+    await expect(this.appVerstion).not.toBeVisible()
     return this
   }
 
   async checkLogoImageVisible(): Promise<this> {
-    await this.actions.assertVisible(this.logoImage)
+    await expect(this.logoImage).toBeVisible()
     return this
   }
 
   async checkLogoExpandedVisible(): Promise<this> {
-    await this.actions
-      .assertVisible(this.logoTitle)
-      .then((a) => a.assertText(this.logoTitle, this.logoTitleText))
-      .then((a) => a.assertVisible(this.logoSubtitle))
-      .then((a) => a.assertText(this.logoSubtitle, this.logoSubtitleText))
+    await expect.soft(this.logoTitle).toBeVisible()
+    await expect.soft(this.logoTitle).toHaveText(this.logoTitleText)
+    await expect.soft(this.logoSubtitle).toBeVisible()
+    await expect.soft(this.logoSubtitle).toHaveText(this.logoSubtitleText)
     return this
   }
 
   async checkLogoCollapsedHidden(): Promise<this> {
-    await this.actions.assertHidden(this.logoTitle).then((a) => a.assertHidden(this.logoSubtitle))
+    await expect.soft(this.logoTitle).not.toBeVisible()
+    await expect.soft(this.logoSubtitle).not.toBeVisible()
     return this
   }
 
   async checkNavExpandedVisible(): Promise<this> {
-    await this.actions
-      .assertVisible(this.navDashboardIcon)
-      .then((a) => a.assertVisible(this.navDashboardLabel))
-      .then((a) => a.assertVisible(this.navTasksIcon))
-      .then((a) => a.assertVisible(this.navTasksLabel))
-      .then((a) => a.assertVisible(this.navCalendarIcon))
-      .then((a) => a.assertVisible(this.navCalendarLabel))
-      .then((a) => a.assertVisible(this.navArchiveIcon))
-      .then((a) => a.assertVisible(this.navArchiveLabel))
+    await expect.soft(this.navDashboardIcon).toBeVisible()
+    await expect.soft(this.navDashboardLabel).toBeVisible()
+    await expect.soft(this.navTasksIcon).toBeVisible()
+    await expect.soft(this.navTasksLabel).toBeVisible()
+    await expect.soft(this.navCalendarIcon).toBeVisible()
+    await expect.soft(this.navCalendarLabel).toBeVisible()
+    await expect.soft(this.navArchiveIcon).toBeVisible()
+    await expect.soft(this.navArchiveLabel).toBeVisible()
     return this
   }
 
   async checkNavCollapsedVisible(): Promise<this> {
-    await this.actions
-      .assertVisible(this.navDashboardIcon)
-      .then((a) => a.assertHidden(this.navDashboardLabel))
-      .then((a) => a.assertVisible(this.navTasksIcon))
-      .then((a) => a.assertHidden(this.navTasksLabel))
-      .then((a) => a.assertVisible(this.navCalendarIcon))
-      .then((a) => a.assertHidden(this.navCalendarLabel))
-      .then((a) => a.assertVisible(this.navArchiveIcon))
-      .then((a) => a.assertHidden(this.navArchiveLabel))
+    await expect.soft(this.navDashboardIcon).toBeVisible()
+    await expect.soft(this.navDashboardLabel).not.toBeVisible()
+    await expect.soft(this.navTasksIcon).toBeVisible()
+    await expect.soft(this.navTasksLabel).not.toBeVisible()
+    await expect.soft(this.navCalendarIcon).toBeVisible()
+    await expect.soft(this.navCalendarLabel).not.toBeVisible()
+    await expect.soft(this.navArchiveIcon).toBeVisible()
+    await expect.soft(this.navArchiveLabel).not.toBeVisible()
     return this
   }
 }

@@ -10,7 +10,6 @@ export type AuthFixtures = {
   dashboardPage: DashboardPage
   newTaskPage: NewTaskPage
   logoutPage: LogoutPage
-  dashboardWithTask: { dashboardPage: DashboardPage; taskName: string }
 }
 
 export const authFixtures = base.extend<AuthFixtures>({
@@ -30,22 +29,17 @@ export const authFixtures = base.extend<AuthFixtures>({
     await loginPage.fillUserName(loginCredentials.validUser.username)
     await loginPage.fillPassword(loginCredentials.validUser.password)
     await loginPage.clickSubmit()
+    await page.waitForURL('**/dashboard.html')
     await use(dashboardPage)
 
     await dashboardPage.clearCache()
   },
-  newTaskPage: async ({ page }, use) => {
-    const loginPage = new LoginPage(page)
-    const dashboardPage = new DashboardPage(page)
-
-    await loginPage.visit()
-    await loginPage.fillUserName(loginCredentials.validUser.username)
-    await loginPage.fillPassword(loginCredentials.validUser.password)
-    await loginPage.clickSubmit()
+  newTaskPage: async ({ dashboardPage }, use) => {
     const newTaskPage = await dashboardPage.clickButtonNewTask()
+
     await use(newTaskPage)
 
-    await newTaskPage.clearCache()
+    await dashboardPage.deleteTaskByTitle(newTaskPage.taskName)
   },
   logoutPage: async ({ page }, use) => {
     const logoutPage = new LogoutPage(page)
@@ -54,23 +48,5 @@ export const authFixtures = base.extend<AuthFixtures>({
     await use(logoutPage)
 
     await logoutPage.clearCache()
-  },
-  dashboardWithTask: async ({ page }, use) => {
-    const loginPage = new LoginPage(page)
-    const dashboardPage = new DashboardPage(page)
-
-    await loginPage.visit()
-    await loginPage.fillUserName(loginCredentials.validUser.username)
-    await loginPage.fillPassword(loginCredentials.validUser.password)
-    await loginPage.clickSubmit()
-
-    const newTaskPage = await dashboardPage.clickButtonNewTask()
-    await newTaskPage.fillTaskTitle()
-    const taskName = newTaskPage.taskName
-    await newTaskPage.clickCreateTaskButton()
-
-    await use({ dashboardPage, taskName })
-
-    await dashboardPage.clearCache()
   },
 })

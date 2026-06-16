@@ -17,7 +17,9 @@ export const loginCredentials = {
   },
 }
 
-export const negativeLoginCases = [
+import { LoginTestCase } from '../types/chronos/form-fields/login_form'
+
+export const negativeLoginCases: LoginTestCase[] = [
   { description: 'Invalid Credentials', username: 'wrong', password: 'wrong' },
   { description: 'Empty Credentials', username: '', password: '' },
 ]

@@ -51,16 +51,34 @@ test.describe('Test Dashboard Page', () => {
   })
 
   test.describe('E2E Test For Task Toggle', () => {
-    test('Toggle Task Between Open And Finish Sections', async ({ dashboardWithTask }) => {
-      const { dashboardPage, taskName } = dashboardWithTask
-      await dashboardPage
-        .checkTaskInOpenSection(taskName)
-        .then((d) => d.toggleTask(taskName))
-        .then((d) => d.checkTaskInFinishSection(taskName))
-        .then((d) => d.toggleTask(taskName))
-        .then((d) => d.checkTaskInOpenSection(taskName))
-        .then((d) => d.toggleTask(taskName))
-        .then((d) => d.checkTaskInFinishSection(taskName))
+    let taskName: string
+
+    test.beforeEach(async ({ dashboardPage }) => {
+      const newTaskPage = await dashboardPage.clickButtonNewTask()
+      await newTaskPage.fillTaskTitle()
+      taskName = newTaskPage.taskName
+      await newTaskPage.clickCreateTaskButton()
+    })
+
+    test('Toggle Task Between Open And Finish Sections', async ({ dashboardPage }) => {
+      await test.step('Task is in open section', async () => {
+        await dashboardPage.checkTaskInOpenSection(taskName)
+      })
+
+      await test.step('Toggle to finished', async () => {
+        await dashboardPage.toggleTask(taskName)
+        await dashboardPage.checkTaskInFinishSection(taskName)
+      })
+
+      await test.step('Toggle back to open', async () => {
+        await dashboardPage.toggleTask(taskName)
+        await dashboardPage.checkTaskInOpenSection(taskName)
+      })
+
+      await test.step('Toggle to finished again', async () => {
+        await dashboardPage.toggleTask(taskName)
+        await dashboardPage.checkTaskInFinishSection(taskName)
+      })
     })
   })
 })

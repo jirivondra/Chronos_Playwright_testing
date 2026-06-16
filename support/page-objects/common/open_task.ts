@@ -1,12 +1,12 @@
-import { Page, Locator } from '@playwright/test'
+import { Page, Locator, expect } from '@playwright/test'
 import { SiteBarMenu } from './site_bar_menu'
 
 export class OpenTask extends SiteBarMenu {
   private readonly openList: Locator
   protected readonly taskGroup: Locator
-  private readonly openListEmptyMessage: Locator
+  readonly openListEmptyMessage: Locator
   private readonly openListEmptyMessageText: string
-  private readonly expandOpenListButton: Locator
+  readonly expandOpenListButton: Locator
   private readonly editButtonSelector: string
   private readonly deleteButtonSelector: string
   private readonly todosEndpoint: string
@@ -36,7 +36,7 @@ export class OpenTask extends SiteBarMenu {
   }
 
   async clickExpandButton(): Promise<this> {
-    await this.actions.clickElement(this.expandOpenListButton)
+    await this.expandOpenListButton.click()
     return this
   }
 
@@ -47,31 +47,36 @@ export class OpenTask extends SiteBarMenu {
   }
 
   async checkExpandButtonVisible(): Promise<this> {
-    await this.actions.assertVisible(this.expandOpenListButton)
+    await expect(this.expandOpenListButton).toBeVisible()
     return this
   }
 
   async checkExpandButtonNotVisible(): Promise<this> {
-    await this.actions.assertHidden(this.expandOpenListButton)
+    await expect(this.expandOpenListButton).not.toBeVisible()
     return this
   }
 
   async checkEmptyOpenSection(): Promise<this> {
-    await this.actions
-      .assertVisible(this.openListEmptyMessage)
-      .then((a) => a.assertText(this.openListEmptyMessage, this.openListEmptyMessageText))
+    await expect.soft(this.openListEmptyMessage).toBeVisible()
+    await expect.soft(this.openListEmptyMessage).toHaveText(this.openListEmptyMessageText)
     return this
   }
 
+  async deleteTaskByTitle(title: string): Promise<void> {
+    const response = await this.get(this.todosEndpoint)
+    const todos = (await response.json()) as { id: number; title: string }[]
+    const ids = todos.filter((t) => t.title === title).map((t) => t.id)
+    await Promise.all(ids.map((id) => this.delete(`${this.todosEndpoint}/${id}`)))
+  }
+
   async checkTaskInOpenSection(taskName: string): Promise<this> {
-    await this.actions.assertVisible(this.taskInOpenSection(taskName))
+    await expect(this.taskInOpenSection(taskName)).toBeVisible()
     return this
   }
 
   async checkTaskHasEditAndDeleteButtons(taskName: string): Promise<this> {
-    await this.actions
-      .assertVisible(this.taskEditButton(taskName))
-      .then((a) => a.assertVisible(this.taskDeleteButton(taskName)))
+    await expect.soft(this.taskEditButton(taskName)).toBeVisible()
+    await expect.soft(this.taskDeleteButton(taskName)).toBeVisible()
     return this
   }
 }

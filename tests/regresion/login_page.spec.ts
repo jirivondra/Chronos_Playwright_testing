@@ -1,4 +1,6 @@
 import { test, expect } from '../../support/fixture'
+
+test.use({ storageState: { cookies: [], origins: [] } })
 import {
   loginPageData,
   loginCredentials,
@@ -71,11 +73,11 @@ test.describe('Test Login page', () => {
     })
 
     test('Login With Correct Credentials', async ({ loginPage }) => {
-      await loginPage
-        .fillUserName(loginCredentials.validUser.username)
-        .then((l) => l.fillPassword(loginCredentials.validUser.password))
-        .then((l) => l.clickSubmit())
-        .then((l) => l.checkUrl(loginPageData.urlDashboard))
+      const dashboardPage = await loginPage.login(
+        loginCredentials.validUser.username,
+        loginCredentials.validUser.password
+      )
+      await dashboardPage.checkUrl(loginPageData.urlDashboard)
     })
   })
 
