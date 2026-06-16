@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test'
+import { Page, Locator, expect } from '@playwright/test'
 import { ToTopButton } from './common/to_top_button'
 import { DashboardPage } from './dashboard_page'
 
@@ -6,9 +6,9 @@ export class LoginPage extends ToTopButton {
   protected userName: string
   protected password: string
   protected submitButton: string
-  private readonly signInButton: Locator
-  private readonly createAccountLink: Locator
-  private readonly forgetAccessLink: Locator
+  readonly signInButton: Locator
+  readonly createAccountLink: Locator
+  readonly forgetAccessLink: Locator
   private readonly passwordInput: Locator
   private readonly passwordToggle: Locator
   private readonly passwordHiddenType: string
@@ -39,32 +39,32 @@ export class LoginPage extends ToTopButton {
   }
 
   async checkSignInButtonVisible(): Promise<this> {
-    await this.actions.assertVisible(this.signInButton)
+    await expect(this.signInButton).toBeVisible()
     return this
   }
 
   async checkCreateAccountVisible(): Promise<this> {
-    await this.actions.assertVisible(this.createAccountLink)
+    await expect(this.createAccountLink).toBeVisible()
     return this
   }
 
   async checkForgotAccessVisible(): Promise<this> {
-    await this.actions.assertVisible(this.forgetAccessLink)
+    await expect(this.forgetAccessLink).toBeVisible()
     return this
   }
 
   async checkPasswordIsHidden(): Promise<this> {
-    await this.actions.assertAttribute(this.passwordInput, 'type', this.passwordHiddenType)
+    await expect(this.passwordInput).toHaveAttribute('type', this.passwordHiddenType)
     return this
   }
 
   async checkPasswordIsVisible(): Promise<this> {
-    await this.actions.assertAttribute(this.passwordInput, 'type', this.passwordVisibleType)
+    await expect(this.passwordInput).toHaveAttribute('type', this.passwordVisibleType)
     return this
   }
 
   async clickPasswordToggle(): Promise<this> {
-    await this.actions.clickElement(this.passwordToggle)
+    await this.passwordToggle.click()
     return this
   }
 
@@ -73,11 +73,10 @@ export class LoginPage extends ToTopButton {
     return this
   }
 
-  async login(userName: string, password: string, url: string) {
+  async login(userName: string, password: string): Promise<DashboardPage> {
     await this.fillUserName(userName)
     await this.fillPassword(password)
     await this.clickSubmit()
-    await this.checkUrl(url)
     return new DashboardPage(this.page)
   }
 }

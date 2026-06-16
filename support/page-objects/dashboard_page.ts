@@ -3,7 +3,7 @@ import { OpenTask } from './common/open_task'
 import { NewTaskPage } from './new_task_page'
 
 export class DashboardPage extends OpenTask {
-  protected newTaskButton: Locator
+  readonly newTaskButton: Locator
   private readonly doneList: Locator
   private readonly doneListTaskTitle: Locator
   private readonly checkboxInput = 'input[type="checkbox"]'
@@ -24,32 +24,32 @@ export class DashboardPage extends OpenTask {
   }
 
   async checkNewTaskButtonIsVisible(): Promise<this> {
-    await this.actions.assertVisible(this.newTaskButton)
+    await expect(this.newTaskButton).toBeVisible()
     return this
   }
 
   async toggleTask(taskName: string): Promise<this> {
-    await this.actions.clickElement(this.taskCheckbox(taskName))
+    await this.taskCheckbox(taskName).click()
     await this.page.waitForLoadState('networkidle')
     return this
   }
 
   async checkTaskInFinishSection(taskName: string): Promise<this> {
-    await this.actions.assertVisible(this.taskInFinishSection(taskName))
+    await expect(this.taskInFinishSection(taskName)).toBeVisible()
     return this
   }
 
   async clickButtonNewTask(): Promise<NewTaskPage> {
-    await this.actions.clickElement(this.newTaskButton)
+    await this.newTaskButton.click()
     return new NewTaskPage(this.page)
   }
 
   async checkNewTaskNavigationRequest(): Promise<this> {
     const requestPromise = this.page.waitForRequest(/edit-task/)
-    await this.actions.clickElement(this.newTaskButton)
+    await this.newTaskButton.click()
     const request = await requestPromise
-    expect(request.url()).toContain('edit-task')
-    expect(request.method()).toBe('GET')
+    expect.soft(request.url()).toContain('edit-task')
+    expect.soft(request.method()).toBe('GET')
     return this
   }
 }

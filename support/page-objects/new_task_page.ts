@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 export class NewTaskPage extends SiteBarMenu {
   private readonly taskNameInput: Locator
   readonly taskName: string
-  private createTaskButton: Locator
+  readonly createTaskButton: Locator
 
   constructor(page: Page) {
     super(page, '/edit-task.html?from=dashboard')
@@ -16,19 +16,19 @@ export class NewTaskPage extends SiteBarMenu {
   }
 
   async fillTaskTitle(): Promise<this> {
-    await this.actions.fillText(this.taskNameInput, this.taskName)
+    await this.taskNameInput.fill(this.taskName)
     return this
   }
 
   async checkCreateTaskButtonBehave(): Promise<this> {
-    await this.actions.assertDisabled(this.createTaskButton)
+    await expect.soft(this.createTaskButton).toBeDisabled()
     await this.fillTaskTitle()
-    await this.actions.assertEnabled(this.createTaskButton)
+    await expect.soft(this.createTaskButton).toBeEnabled()
     return this
   }
 
   async clickCreateTaskButton(): Promise<DashboardPage> {
-    await this.actions.clickElement(this.createTaskButton)
+    await this.createTaskButton.click()
     await this.page.waitForURL('**/dashboard.html')
     await this.page.waitForLoadState('networkidle')
     return new DashboardPage(this.page)
@@ -36,7 +36,7 @@ export class NewTaskPage extends SiteBarMenu {
 
   async checkCreateTaskPostRequest(): Promise<this> {
     const requestPromise = this.page.waitForRequest(/api\/tasks/)
-    await this.actions.clickElement(this.createTaskButton)
+    await this.createTaskButton.click()
     const request = await requestPromise
     expect(request.method()).toBe('POST')
     return this

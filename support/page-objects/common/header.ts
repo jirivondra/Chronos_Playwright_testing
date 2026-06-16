@@ -1,9 +1,9 @@
-import { Page, Locator } from '@playwright/test'
+import { Page, Locator, expect } from '@playwright/test'
 import { BasePage } from './base_page'
 
 export class Header extends BasePage {
-  protected readonly h1: Locator
-  protected readonly h2: Locator
+  readonly h1: Locator
+  readonly h2: Locator
 
   constructor(page: Page, path: string) {
     super(page, path)
@@ -12,15 +12,15 @@ export class Header extends BasePage {
   }
 
   async checkH1(text: string): Promise<this> {
-    await this.actions
-      .assertVisible(this.h1)
-      .then((a) => a.assertCount(this.h1, 1))
-      .then((a) => a.assertText(this.h1, text))
+    await expect.soft(this.h1).toBeVisible()
+    await expect.soft(this.h1).toHaveCount(1)
+    await expect.soft(this.h1).toHaveText(text)
     return this
   }
 
   async checkH2(text: string): Promise<this> {
-    await this.actions.assertVisible(this.h2).then((a) => a.assertText(this.h2, text))
+    await expect.soft(this.h2).toBeVisible()
+    await expect.soft(this.h2).toHaveText(text)
     return this
   }
 }

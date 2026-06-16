@@ -1,5 +1,6 @@
-import { Page, Locator } from '@playwright/test'
+import { Page, Locator, expect } from '@playwright/test'
 import { ToTopButton } from './common/to_top_button'
+import { LoginPage } from './login_page'
 
 export class LogoutPage extends ToTopButton {
   private readonly returnToLoginButton: Locator
@@ -10,13 +11,12 @@ export class LogoutPage extends ToTopButton {
   }
 
   async checkReturnToLoginVisible(): Promise<this> {
-    await this.actions.assertVisible(this.returnToLoginButton)
+    await expect(this.returnToLoginButton).toBeVisible()
     return this
   }
 
-  async clickReturnToLogin(url: string): Promise<this> {
-    await this.actions.clickElement(this.returnToLoginButton)
-    await this.checkUrl(url)
-    return this
+  async clickReturnToLogin(): Promise<LoginPage> {
+    await this.returnToLoginButton.click()
+    return new LoginPage(this.page)
   }
 }

@@ -1,23 +1,27 @@
-import { Page, Locator } from '@playwright/test'
+import { Page, Locator, expect } from '@playwright/test'
 import { Header } from './header'
 
 export class Footer extends Header {
-  private readonly heading: Locator
+  readonly footerHeading: Locator
   readonly contactIcons: Locator
 
   constructor(page: Page, path: string) {
     super(page, path)
-    this.heading = this.page.locator('footer p:has-text("Connect with me")')
+    this.footerHeading = this.page.locator('footer p:has-text("Connect with me")')
     this.contactIcons = this.page.locator('footer a[aria-label]')
   }
 
+  contactIconByUrl(url: string): Locator {
+    return this.contactIcons.and(this.page.locator(`[href="${url}"]`))
+  }
+
   async checkHeadingVisible(): Promise<this> {
-    await this.actions.assertVisible(this.heading)
+    await expect(this.footerHeading).toBeVisible()
     return this
   }
 
   async checkContactIconLink(url: string): Promise<this> {
-    await this.actions.assertVisible(this.contactIcons.and(this.page.locator(`[href="${url}"]`)))
+    await expect(this.contactIconByUrl(url)).toBeVisible()
     return this
   }
 }

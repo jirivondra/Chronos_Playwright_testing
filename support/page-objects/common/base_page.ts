@@ -1,15 +1,12 @@
-import { Page } from '@playwright/test'
+import { Page, expect } from '@playwright/test'
 import { ApiHelper } from './api_helper'
-import { CustomActions } from '../../../helper/custom_action'
 
 export class BasePage extends ApiHelper {
   protected page: Page
-  protected actions: CustomActions
 
   constructor(page: Page, path: string) {
     super(path)
     this.page = page
-    this.actions = new CustomActions()
   }
 
   async visit(params = ''): Promise<this> {
@@ -32,7 +29,7 @@ export class BasePage extends ApiHelper {
   }
 
   async checkUrl(url: string): Promise<this> {
-    await this.actions.assertUrl(this.page, url)
+    await expect(this.page).toHaveURL(url)
     return this
   }
 
