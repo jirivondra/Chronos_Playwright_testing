@@ -1,6 +1,4 @@
 import { test } from '../../support/fixture'
-
-test.use({ storageState: { cookies: [], origins: [] } })
 import { loginPageData } from '../../support/test-data/login_page_data'
 
 test.describe('Test Unauthenticated Access', () => {
