@@ -9,7 +9,10 @@ test.describe('Test New Task Page', () => {
 
   test.describe('E2E Test For New Task Page', () => {
     test('Create New Task', async ({ newTaskPage }) => {
-      await newTaskPage.fillTaskTitle().then((n) => n.clickCreateTaskButton())
+      await newTaskPage
+        .fillTaskTitle()
+        .then((n) => n.clickCreateTaskButton())
+        .then((d) => d.checkTaskInOpenSection(newTaskPage.taskName))
     })
 
     test.skip('Create Task Button Triggers POST Request', async ({ newTaskPage }) => {

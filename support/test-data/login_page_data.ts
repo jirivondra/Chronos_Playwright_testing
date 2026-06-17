@@ -1,3 +1,5 @@
+import { LoginTestCase } from '../types/chronos/form-fields/login_form'
+
 export const loginPageData = {
   h1: 'Chronos',
   h2: 'Welcome',
@@ -8,16 +10,14 @@ export const loginPageData = {
 
 export const loginCredentials = {
   validUser: {
-    username: 'admin',
-    password: 'secret',
+    username: process.env.API_USERNAME ?? '',
+    password: process.env.API_PASSWORD ?? '',
   },
   invalidUser: {
     username: 'wrong',
     password: 'wrong',
   },
 }
-
-import { LoginTestCase } from '../types/chronos/form-fields/login_form'
 
 export const negativeLoginCases: LoginTestCase[] = [
   { description: 'Invalid Credentials', username: 'wrong', password: 'wrong' },

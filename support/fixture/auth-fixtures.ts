@@ -22,14 +22,17 @@ export const authFixtures = base.extend<AuthFixtures>({
     await loginPage.clearCache()
   },
   dashboardPage: async ({ page }, use) => {
-    const loginPage = new LoginPage(page)
+    const token = Buffer.from(
+      `${loginCredentials.validUser.username}:${loginCredentials.validUser.password}`
+    ).toString('base64')
+
+    await page.context().addInitScript((t) => {
+      sessionStorage.setItem('auth', t)
+    }, token)
+
     const dashboardPage = new DashboardPage(page)
 
-    await loginPage.visit()
-    await loginPage.fillUserName(loginCredentials.validUser.username)
-    await loginPage.fillPassword(loginCredentials.validUser.password)
-    await loginPage.clickSubmit()
-    await page.waitForURL('**/dashboard.html')
+    await dashboardPage.visit()
     await use(dashboardPage)
 
     await dashboardPage.clearCache()

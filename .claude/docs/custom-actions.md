@@ -1,50 +1,66 @@
-# CustomActions
+# Assertions in Page Objects
 
-`CustomActions` is a thin wrapper around Playwright's `expect` assertions and locator interactions. Every page object has access to it via `this.actions` (initialised in `BasePage`).
+Page objects use Playwright's `expect` and `expect.soft` directly, imported from `@playwright/test`. Both are called inside page object methods — never on inline selectors.
 
-## Purpose
+## `expect.soft` — non-blocking assertions
 
-- Centralises assertion calls — changing how an assertion works means changing it in one place.
-- Makes page object methods more readable by using descriptive names instead of raw `expect` chains.
-- Keeps Playwright internals out of page objects.
+`expect.soft` is used for groups of related assertions. All assertions in the group run even if one fails — the test is marked as failed at the end, not at the first failure.
 
-## Available methods
-
-| Method                                       | Playwright equivalent                               | Description                                      |
-| -------------------------------------------- | --------------------------------------------------- | ------------------------------------------------ |
-| `assertVisible(locator)`                     | `expect(locator).toBeVisible()`                     | Asserts the element is visible in the DOM        |
-| `assertText(locator, text)`                  | `expect(locator).toHaveText(text)`                  | Asserts the element's text content equals `text` |
-| `assertCount(locator, count)`                | `expect(locator).toHaveCount(count)`                | Asserts the number of matching elements          |
-| `assertAttribute(locator, attribute, value)` | `expect(locator).toHaveAttribute(attribute, value)` | Asserts an HTML attribute value                  |
-| `assertUrl(page, url)`                       | `expect(page).toHaveURL(url)`                       | Asserts the current page URL                     |
-| `clickElement(locator)`                      | `locator.click()`                                   | Clicks the element                               |
-
-## How to use
-
-`this.actions` is available in every class that inherits from `BasePage` or below:
+Use `expect.soft` when checking multiple properties of the same element or component together:
 
 ```ts
-async checkH1(text: string) {
-  await this.actions.assertVisible(this.h1)
-  await this.actions.assertCount(this.h1, 1)
-  await this.actions.assertText(this.h1, text)
+async checkH1(text: string): Promise<this> {
+  await expect.soft(this.h1).toBeVisible()
+  await expect.soft(this.h1).toHaveCount(1)
+  await expect.soft(this.h1).toHaveText(text)
+  return this
 }
 ```
 
-Pass a `Locator` directly — locators are defined as class properties, not inline strings:
-
 ```ts
-// correct — named locator from a class property
-await this.actions.assertText(this.submitButton, 'Submit')
-
-// incorrect — inline selector string
-await this.actions.assertText(this.page.locator('.btn'), 'Submit')
+async checkLogoExpandedVisible(): Promise<this> {
+  await expect.soft(this.logoTitle).toBeVisible()
+  await expect.soft(this.logoTitle).toHaveText(this.logoTitleText)
+  await expect.soft(this.logoSubtitle).toBeVisible()
+  await expect.soft(this.logoSubtitle).toHaveText(this.logoSubtitleText)
+  return this
+}
 ```
 
-## When to use CustomActions vs. direct Playwright calls
+## `expect` — blocking assertions
 
-Use `this.actions` inside page objects for any assertion or click that maps to the methods above.
+`expect` is used for single, critical assertions where failure should stop the test immediately. Also used for network/request assertions.
 
-Use direct Playwright calls when you need behaviour that `CustomActions` does not cover (e.g. `fill`, `selectOption`, `waitForResponse`). Do not add logic to page objects that belongs in tests.
+```ts
+async checkNewTaskButtonIsVisible(): Promise<this> {
+  await expect(this.newTaskButton).toBeVisible()
+  return this
+}
 
-Never call `expect` directly in a test file — delegate assertions to page object methods that use `this.actions` internally.
+async checkCreateTaskPostRequest(): Promise<this> {
+  const requestPromise = this.page.waitForRequest(/api\/tasks/)
+  await this.createTaskButton.click()
+  const request = await requestPromise
+  expect(request.method()).toBe('POST')
+  return this
+}
+```
+
+## Decision guide
+
+| Situation                                                | Use                                         |
+| -------------------------------------------------------- | ------------------------------------------- |
+| Multiple properties of the same element or component     | `expect.soft` — report all failures at once |
+| Single assertion, or a prerequisite before the next step | `expect` — stop immediately on failure      |
+| Network request method or URL check                      | `expect` — single check                     |
+
+## `expect` in test files
+
+Use `expect` directly in a test file only when a page object method is not sufficient — typically for count or attribute checks on a public locator:
+
+```ts
+// ok — count cannot be easily encapsulated
+await expect(loginPage.contactIcons).toHaveCount(3)
+```
+
+All other assertions belong inside page object methods.

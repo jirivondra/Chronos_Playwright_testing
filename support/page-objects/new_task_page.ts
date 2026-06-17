@@ -1,6 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test'
 import { SiteBarMenu } from './common/site_bar_menu'
-import { DashboardPage } from './dashboard_page'
+import type { DashboardPage } from './dashboard_page'
 import dayjs from 'dayjs'
 
 export class NewTaskPage extends SiteBarMenu {
@@ -28,10 +28,10 @@ export class NewTaskPage extends SiteBarMenu {
   }
 
   async clickCreateTaskButton(): Promise<DashboardPage> {
+    const { DashboardPage: DashboardPageCtor } = await import('./dashboard_page')
     await this.createTaskButton.click()
     await this.page.waitForURL('**/dashboard.html')
-    await this.page.waitForLoadState('networkidle')
-    return new DashboardPage(this.page)
+    return new DashboardPageCtor(this.page)
   }
 
   async checkCreateTaskPostRequest(): Promise<this> {

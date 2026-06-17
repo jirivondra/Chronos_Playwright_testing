@@ -7,7 +7,7 @@ export class Footer extends Header {
 
   constructor(page: Page, path: string) {
     super(page, path)
-    this.footerHeading = this.page.locator('footer p:has-text("Connect with me")')
+    this.footerHeading = this.page.locator('footer').getByText('Connect with me')
     this.contactIcons = this.page.locator('footer a[aria-label]')
   }
 

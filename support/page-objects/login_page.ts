@@ -20,8 +20,8 @@ export class LoginPage extends ToTopButton {
     this.password = '#password'
     this.submitButton = 'button[type="submit"]'
     this.signInButton = this.page.locator(this.submitButton)
-    this.createAccountLink = this.page.locator('a:has-text("Create Account")')
-    this.forgetAccessLink = this.page.locator('a:has-text("Forgot Access?")')
+    this.createAccountLink = this.page.getByRole('link', { name: 'Create Account' })
+    this.forgetAccessLink = this.page.getByRole('link', { name: 'Forgot Access?' })
     this.passwordInput = this.page.locator(this.password)
     this.passwordToggle = this.page.locator('#toggle-password')
     this.passwordHiddenType = 'password'
@@ -69,7 +69,7 @@ export class LoginPage extends ToTopButton {
   }
 
   async clickSubmit(): Promise<this> {
-    await this.click(this.submitButton)
+    await this.signInButton.click()
     return this
   }
 

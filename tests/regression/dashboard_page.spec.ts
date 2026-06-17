@@ -4,7 +4,7 @@ import { dashboardPageData } from '../../support/test-data/dashboard_page_data'
 
 test.describe('Test Dashboard Page', () => {
   test.describe('Atomic Tests For Dashboard', () => {
-    let openTaskCount:  number
+    let openTaskCount: number
 
     test.beforeEach(async ({ dashboardPage }) => {
       openTaskCount = await dashboardPage.countOpenTasks()
@@ -32,11 +32,12 @@ test.describe('Test Dashboard Page', () => {
 
   test.describe('E2E Test For Dashboard Page', () => {
     test('Sidebar Menu Collapse And Expand', async ({ dashboardPage }) => {
-      await dashboardPage.checkOpenAndClosseSiteMenu()
+      await dashboardPage.checkOpenAndCloseSiteMenu()
     })
 
     test('Click New Task Button Navigates To New Task Page', async ({ dashboardPage }) => {
-      await dashboardPage.clickButtonNewTask()
+      const newTaskPage = await dashboardPage.clickButtonNewTask()
+      await newTaskPage.checkUrl(dashboardPageData.urlNewTaskPage)
     })
 
     test('New Task Button Triggers Navigation Request', async ({ dashboardPage }) => {
@@ -58,6 +59,10 @@ test.describe('Test Dashboard Page', () => {
       await newTaskPage.fillTaskTitle()
       taskName = newTaskPage.taskName
       await newTaskPage.clickCreateTaskButton()
+    })
+
+    test.afterEach(async ({ dashboardPage }) => {
+      await dashboardPage.deleteTaskByTitle(taskName)
     })
 
     test('Toggle Task Between Open And Finish Sections', async ({ dashboardPage }) => {

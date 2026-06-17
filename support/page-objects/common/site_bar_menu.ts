@@ -3,10 +3,10 @@ import { AppBar } from './app_bar'
 
 export class SiteBarMenu extends AppBar {
   protected openMenuButton: Locator
-  protected buttonOpenAndClosseSiteMenu: Locator
-  protected appVerstionTitle: Locator
-  protected appVerstion: Locator
-  protected appVerstionTitleText: string
+  protected buttonOpenAndCloseSiteMenu: Locator
+  protected appVersionTitle: Locator
+  protected appVersion: Locator
+  protected appVersionTitleText: string
 
   private readonly logoImage: Locator
   private readonly logoTitle: Locator
@@ -27,10 +27,10 @@ export class SiteBarMenu extends AppBar {
   constructor(page: Page, path: string) {
     super(page, path)
     this.openMenuButton = page.getByRole('button', { name: 'menu_open' })
-    this.buttonOpenAndClosseSiteMenu = page.locator('#toggle-icon')
-    this.appVerstionTitle = page.locator('.sidebar-label.items-center')
-    this.appVerstionTitleText = 'App version'
-    this.appVerstion = page.getByText('App version')
+    this.buttonOpenAndCloseSiteMenu = page.locator('#toggle-icon')
+    this.appVersionTitle = page.locator('.sidebar-label.items-center')
+    this.appVersionTitleText = 'App version'
+    this.appVersion = page.getByText('App version')
 
     this.logoImage = page.locator('.sidebar-logo-link img')
     this.logoTitle = page.locator('.sidebar-logo-link h1')
@@ -59,32 +59,32 @@ export class SiteBarMenu extends AppBar {
     return this
   }
 
-  async checkOpenAndClosseSiteMenu(): Promise<this> {
+  async checkOpenAndCloseSiteMenu(): Promise<this> {
     await this.checkVisibilityForOpenMenu()
     await this.checkLogoExpandedVisible()
     await this.checkVersionOfAppIsVisible()
     await this.checkNavExpandedVisible()
-    await this.buttonOpenAndClosseSiteMenu.click()
+    await this.buttonOpenAndCloseSiteMenu.click()
     await this.checkLogoCollapsedHidden()
     await this.checkVersionOfAppIsNotVisible()
     await this.checkNavCollapsedVisible()
-    await this.buttonOpenAndClosseSiteMenu.click()
+    await this.buttonOpenAndCloseSiteMenu.click()
     return this
   }
 
   async checkVersionTitle(): Promise<this> {
-    await expect.soft(this.appVerstionTitle).toBeVisible()
-    await expect.soft(this.appVerstionTitle).toHaveText(this.appVerstionTitleText)
+    await expect.soft(this.appVersionTitle).toBeVisible()
+    await expect.soft(this.appVersionTitle).toHaveText(this.appVersionTitleText)
     return this
   }
 
   async checkVersionOfAppIsVisible(): Promise<this> {
-    await expect(this.appVerstion).toBeVisible()
+    await expect(this.appVersion).toBeVisible()
     return this
   }
 
   async checkVersionOfAppIsNotVisible(): Promise<this> {
-    await expect(this.appVerstion).not.toBeVisible()
+    await expect(this.appVersion).not.toBeVisible()
     return this
   }
 

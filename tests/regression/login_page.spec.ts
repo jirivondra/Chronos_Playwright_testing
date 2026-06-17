@@ -1,6 +1,4 @@
 import { test, expect } from '../../support/fixture'
-
-test.use({ storageState: { cookies: [], origins: [] } })
 import {
   loginPageData,
   loginCredentials,
@@ -49,7 +47,7 @@ test.describe('Test Login page', () => {
     })
 
     test('Check LinkedIn Icon Link', async ({ loginPage }) => {
-      await loginPage.checkContactIconLink(contactMeInfo.linkdeIn)
+      await loginPage.checkContactIconLink(contactMeInfo.linkedIn)
     })
   })
 

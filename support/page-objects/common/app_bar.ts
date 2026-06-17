@@ -7,7 +7,7 @@ export class AppBar extends ToTopButton {
 
   constructor(page: Page, path: string) {
     super(page, path)
-    this.logoutButton = page.locator('//span[text()="logout"]')
+    this.logoutButton = page.getByRole('link', { name: 'logout' })
   }
 
   async clickLogout(): Promise<LogoutPage> {

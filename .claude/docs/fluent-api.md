@@ -1,32 +1,26 @@
 # Fluent API
 
-Fluent API is implemented in `CustomActions` (`helper/custom_action.ts`). Every method returns `Promise<this>`, allowing assertions and interactions to be chained together instead of writing separate `await` expressions.
+Every page object method returns `Promise<this>`, allowing calls to be chained via `.then()` instead of writing separate `await` expressions.
 
 ## Purpose
 
-- Makes page object methods more readable — a sequence of assertions is written as a single expression.
-- Eliminates repeated `await this.actions` calls.
+- Makes test code more readable — a sequence of actions is written as a single expression.
+- Removes repeated `await pageObject` lines.
 
-## How to use chaining in a page object
+## How to write chainable methods in a page object
 
-`this.actions` is available in every class that inherits from `Header` or below. Because each method returns `Promise<this>`, you can chain them with `.then()`:
-
-```ts
-async checkH1(text: string) {
-  await this.actions
-    .assertVisible(this.h1)
-    .then(a => a.assertCount(this.h1, 1))
-    .then(a => a.assertText(this.h1, text))
-}
-```
-
-## How to write custom chainable methods in a page object
-
-Every page object method that should support chaining must have a return type of `Promise<this>` and explicitly return `return this`.
+Every method that should support chaining must declare `Promise<this>` as its return type and explicitly `return this`.
 
 ```ts
 async fillUserName(userName: string): Promise<this> {
   await this.page.locator(this.userName).fill(userName)
+  return this
+}
+
+async checkH1(text: string): Promise<this> {
+  await expect.soft(this.h1).toBeVisible()
+  await expect.soft(this.h1).toHaveCount(1)
+  await expect.soft(this.h1).toHaveText(text)
   return this
 }
 ```
@@ -38,11 +32,18 @@ await loginPage
   .visit()
   .then((p) => p.fillUserName('admin'))
   .then((p) => p.fillPassword('secret'))
-  .then((p) => p.clickLoginButton())
-  .then((p) => p.checkUrl('/dashboard'))
+  .then((p) => p.clickSubmit())
+```
+
+When a method returns a different page object (e.g. after navigation), the chain ends and the new object is used separately:
+
+```ts
+const dashboardPage = await loginPage.login(username, password)
+await dashboardPage.checkDashboardUrl()
 ```
 
 ## Rules
 
 - Custom page object methods must explicitly return `return this`, otherwise chaining will not work.
 - Chaining works via `.then()` on the returned `Promise<this>`.
+- Methods that navigate to a new page return a new page object, not `this` — the chain ends there.
