@@ -36,22 +36,24 @@ Environment variables are loaded from `.env` via `dotenv` in `playwright.config.
 
 ### Page Object inheritance chain
 
-Every page class inherits from a chain of shared base classes:
+Two chains exist. `DashboardPage` uses the full chain; `LoginPage` and `LogoutPage` branch off at `ToTopButton`:
 
 ```
-ApiHelper → BasePage → Header → Footer → ToTopButton → [concrete page]
+ApiHelper → BasePage → Header → Footer → ToTopButton → AppBar → SiteBarMenu → OpenTask → DashboardPage
+                                                                              └─ NewTaskPage
+                                                      └─ LoginPage
+                                                      └─ LogoutPage
 ```
 
 - **ApiHelper** (`support/page-objects/common/api_helper.ts`) — HTTP client (no Playwright dependency). Holds `path`, `baseApiUrl`, auth headers, and `get/post/put/delete/apiRequest` methods. All page objects can make API calls.
-- **BasePage** — adds `Page` instance and initialises `CustomActions` as `this.actions`. Provides `visit()`, `clearCache()`, `click()`, `checkUrl()`, `scrollToBottom()`.
-- **Header** — adds `h1`/`h2` locators with assertion methods.
-- **Footer** — adds footer locators and assertions.
+- **BasePage** — adds `Page` instance. Provides `visit()`, `clearCache()`, `scrollToBottom()`. No assertion or interaction methods.
+- **Header** — first class with assertion methods. Adds public `h1`/`h2` locators, `checkUrl()`, `checkH1()`, `checkH2()`.
+- **Footer** — adds footer heading and contact icon locators and assertions.
 - **ToTopButton** — adds back-to-top button locators and assertions.
-- **Concrete pages** (e.g. `LoginPage`) — define page-specific selectors as class fields and expose user-action methods.
-
-### CustomActions
-
-`helper/custom_action.ts` wraps Playwright `expect` assertions into named methods (`assertVisible`, `assertText`, `assertCount`, `assertAttribute`, `assertUrl`, `clickElement`). Accessed via `this.actions` (initialised in `BasePage`).
+- **AppBar** — adds `clickLogout()` which returns `LogoutPage`.
+- **SiteBarMenu** — adds sidebar logo, navigation links, and app version assertions.
+- **OpenTask** — adds open task list, expand button, API-based `countOpenTasks()`, and `deleteTaskByTitle()` for teardown.
+- **Concrete pages** (e.g. `DashboardPage`) — define page-specific selectors and expose user-action methods.
 
 ### Fixtures
 
@@ -63,6 +65,7 @@ ApiHelper → BasePage → Header → Footer → ToTopButton → [concrete page]
 
 ### Documentation
 
+@.claude/docs/available-methods.md
 @.claude/docs/page-objects.md
 @.claude/docs/fluent-api.md
 @.claude/docs/custom-actions.md

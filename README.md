@@ -45,8 +45,15 @@ Or using Taskfile:
 
 Tests are configured to run on:
 
-- **Chromium**
-- **Firefox**
+- **Chromium** (Desktop Chrome)
+- **WebKit** (Desktop Safari)
+- **Google Chrome**
+
+## Scope
+
+### Out of scope (planned for the future)
+
+- **Mobile browsers** — testing on mobile viewports (e.g. Pixel 5, iPhone) is not currently covered. Mobile browser coverage is planned for a future iteration.
 
 ## Project Structure
 
