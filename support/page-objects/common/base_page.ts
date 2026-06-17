@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test'
+import { Page } from '@playwright/test'
 import { ApiHelper } from './api_helper'
 
 export class BasePage extends ApiHelper {
@@ -20,16 +20,6 @@ export class BasePage extends ApiHelper {
       localStorage.clear()
       sessionStorage.clear()
     })
-    return this
-  }
-
-  async click(selector: string): Promise<this> {
-    await this.page.locator(selector).click()
-    return this
-  }
-
-  async checkUrl(url: string): Promise<this> {
-    await expect(this.page).toHaveURL(url)
     return this
   }
 

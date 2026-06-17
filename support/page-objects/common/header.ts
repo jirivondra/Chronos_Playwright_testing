@@ -11,6 +11,11 @@ export class Header extends BasePage {
     this.h2 = this.page.getByRole('heading', { level: 2 })
   }
 
+  async checkUrl(url: string): Promise<this> {
+    await expect(this.page).toHaveURL(url)
+    return this
+  }
+
   async checkH1(text: string): Promise<this> {
     await expect.soft(this.h1).toBeVisible()
     await expect.soft(this.h1).toHaveCount(1)
