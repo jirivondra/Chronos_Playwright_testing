@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test'
 import { SiteBarMenu } from './site_bar_menu'
+import { dashboardPageData } from '../../test-data/dashboard_page_data'
 
 export class OpenTask extends SiteBarMenu {
   private readonly openList: Locator
@@ -15,7 +16,7 @@ export class OpenTask extends SiteBarMenu {
     super(page, path)
     this.openList = page.locator('#open-list')
     this.taskGroup = page.locator('.group')
-    this.openListEmptyMessageText = 'No open tasks. Create one with + New Task.'
+    this.openListEmptyMessageText = dashboardPageData.emptyMessage
     this.openListEmptyMessage = this.openList.getByText(this.openListEmptyMessageText)
     this.expandOpenListButton = this.openList.getByRole('button', { name: /Zobrazit všechny/ })
     this.editButtonSelector = '.edit-btn'

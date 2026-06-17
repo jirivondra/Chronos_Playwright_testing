@@ -1,6 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test'
 import { OpenTask } from './common/open_task'
-import { NewTaskPage } from './new_task_page'
+import type { NewTaskPage } from './new_task_page'
 
 export class DashboardPage extends OpenTask {
   readonly newTaskButton: Locator
@@ -29,8 +29,9 @@ export class DashboardPage extends OpenTask {
   }
 
   async toggleTask(taskName: string): Promise<this> {
+    const response = this.page.waitForResponse(res => res.url().includes('/todos') && res.ok())
     await this.taskCheckbox(taskName).click()
-    await this.page.waitForLoadState('networkidle')
+    await response
     return this
   }
 
@@ -40,8 +41,9 @@ export class DashboardPage extends OpenTask {
   }
 
   async clickButtonNewTask(): Promise<NewTaskPage> {
+    const { NewTaskPage: NewTaskPageCtor } = await import('./new_task_page')
     await this.newTaskButton.click()
-    return new NewTaskPage(this.page)
+    return new NewTaskPageCtor(this.page)
   }
 
   async checkNewTaskNavigationRequest(): Promise<this> {
