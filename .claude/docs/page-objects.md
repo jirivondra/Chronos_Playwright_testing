@@ -17,6 +17,7 @@ Common classes (`AppBar`, `SiteBarMenu`, `OpenTask`, …) can be brought into a 
 Use when a page object needs the majority (~80%) of the functionality from the common chain. The concrete page extends the deepest class it needs; the entire chain above it comes along automatically.
 
 Current chain:
+
 ```
 ApiHelper → BasePage → Header → Footer → ToTopButton → AppBar → SiteBarMenu → OpenTask → DashboardPage
 ```
@@ -54,10 +55,10 @@ export class SpecialPage extends BasePage {
 
 ### Decision rule
 
-| Situation | Approach |
-| --- | --- |
-| Page uses most of the common UI (app bar, sidebar, task list, …) | **Inheritance** — extend the deepest class needed |
-| Page only needs one specific common component | **Composition** — instantiate that class as a private property |
+| Situation                                                        | Approach                                                       |
+| ---------------------------------------------------------------- | -------------------------------------------------------------- |
+| Page uses most of the common UI (app bar, sidebar, task list, …) | **Inheritance** — extend the deepest class needed              |
+| Page only needs one specific common component                    | **Composition** — instantiate that class as a private property |
 
 ## How to create a new page object
 
@@ -74,8 +75,8 @@ Assertions and element interactions inside page objects use `expect` and `expect
 
 A class property can hold either a CSS/selector **string** or a resolved **Locator**. The choice follows where the property is consumed:
 
-| Type      | When to use                                                                                               | Visibility                                               |
-| --------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Type      | When to use                                                                                              | Visibility                                               |
+| --------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | `string`  | Used as a source to build a `Locator` via `this.page.locator()`, or when a subclass needs to override it | `protected` when subclasses need it, otherwise `private` |
 | `Locator` | Passed to `expect`/`expect.soft`, or used directly with `.click()`, `.fill()` etc.                       | `private readonly`                                       |
 

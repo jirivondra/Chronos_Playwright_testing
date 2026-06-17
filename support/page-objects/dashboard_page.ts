@@ -29,7 +29,7 @@ export class DashboardPage extends OpenTask {
   }
 
   async toggleTask(taskName: string): Promise<this> {
-    const response = this.page.waitForResponse(res => res.url().includes('/todos') && res.ok())
+    const response = this.page.waitForResponse((res) => res.url().includes('/todos') && res.ok())
     await this.taskCheckbox(taskName).click()
     await response
     return this

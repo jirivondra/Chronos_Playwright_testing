@@ -4,7 +4,7 @@ import { dashboardPageData } from '../../support/test-data/dashboard_page_data'
 
 test.describe('Test Dashboard Page', () => {
   test.describe('Atomic Tests For Dashboard', () => {
-    let openTaskCount:  number
+    let openTaskCount: number
 
     test.beforeEach(async ({ dashboardPage }) => {
       openTaskCount = await dashboardPage.countOpenTasks()

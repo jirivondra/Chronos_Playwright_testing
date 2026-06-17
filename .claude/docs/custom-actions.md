@@ -48,11 +48,11 @@ async checkCreateTaskPostRequest(): Promise<this> {
 
 ## Decision guide
 
-| Situation | Use |
-|---|---|
-| Multiple properties of the same element or component | `expect.soft` — report all failures at once |
-| Single assertion, or a prerequisite before the next step | `expect` — stop immediately on failure |
-| Network request method or URL check | `expect` — single check |
+| Situation                                                | Use                                         |
+| -------------------------------------------------------- | ------------------------------------------- |
+| Multiple properties of the same element or component     | `expect.soft` — report all failures at once |
+| Single assertion, or a prerequisite before the next step | `expect` — stop immediately on failure      |
+| Network request method or URL check                      | `expect` — single check                     |
 
 ## `expect` in test files
 

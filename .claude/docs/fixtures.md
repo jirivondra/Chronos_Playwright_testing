@@ -114,6 +114,7 @@ export { expect } from '@playwright/test'
 ## Lifecycle
 
 Standard fixture (e.g. `loginPage`, `logoutPage`) — no auth, no dependency:
+
 ```
 [before test]  new PageObject(page)  →  visit()
 [test body]    use(pageObject)       ← test receives instance here
@@ -121,6 +122,7 @@ Standard fixture (e.g. `loginPage`, `logoutPage`) — no auth, no dependency:
 ```
 
 Authenticated fixture (e.g. `dashboardPage`):
+
 ```
 [before test]  addInitScript (token → sessionStorage)  →  new PageObject(page)  →  visit()
 [test body]    use(pageObject)                          ← test receives instance here
@@ -128,6 +130,7 @@ Authenticated fixture (e.g. `dashboardPage`):
 ```
 
 Dependent fixture (e.g. `newTaskPage`):
+
 ```
 [before test]  [dashboardPage fixture runs]  →  clickButtonNewTask()
 [test body]    use(newTaskPage)              ← test receives instance here
@@ -190,11 +193,11 @@ test.describe('Atomic Tests For Dashboard', () => {
 
 ### Decision rule
 
-| Situation | Use |
-| --- | --- |
-| Setup needed in multiple test files or `describe` blocks | **Fixture** — define once, inject anywhere |
-| Setup or teardown specific to one `describe` block | **Hook** (`beforeEach` / `afterEach` / `beforeAll` / `afterAll`) |
-| Querying state for `test.skip()` conditions | **Hook** (`beforeEach`) |
+| Situation                                                | Use                                                              |
+| -------------------------------------------------------- | ---------------------------------------------------------------- |
+| Setup needed in multiple test files or `describe` blocks | **Fixture** — define once, inject anywhere                       |
+| Setup or teardown specific to one `describe` block       | **Hook** (`beforeEach` / `afterEach` / `beforeAll` / `afterAll`) |
+| Querying state for `test.skip()` conditions              | **Hook** (`beforeEach`)                                          |
 
 ## Rules
 
