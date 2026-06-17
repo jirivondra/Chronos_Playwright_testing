@@ -9,7 +9,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: undefined,
   reporter: 'html',
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
@@ -18,65 +18,23 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'setup',
-      testDir: './support',
-      testMatch: /global\.setup\.ts/,
-    },
-
-    {
       name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'] },
     },
 
     {
       name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
+      use: { ...devices['Desktop Firefox'] },
     },
 
     {
-      name: 'Mobile Chrome',
-      use: {
-        ...devices['Pixel 5'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
-
-    {
-      name: 'Mobile Safari',
-      use: {
-        ...devices['iPhone 12'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
-
-    {
-      name: 'Microsoft Edge',
-      use: {
-        ...devices['Desktop Edge'],
-        channel: 'msedge',
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
     },
 
     {
       name: 'Google Chrome',
-      use: {
-        ...devices['Desktop Chrome'],
-        channel: 'chrome',
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     },
   ],
 })
