@@ -71,23 +71,24 @@ export class SpecialPage extends BasePage {
 
 Assertions and element interactions inside page objects use `expect` and `expect.soft` directly, imported from `@playwright/test`. See [custom-actions.md](custom-actions.md) for when to use each.
 
-## Selectors: string vs Locator
+## Selectors: semantic locators first, CSS/ID as fallback
 
-A class property can hold either a CSS/selector **string** or a resolved **Locator**. The choice follows where the property is consumed:
-
-| Type      | When to use                                                                                              | Visibility                                               |
-| --------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `string`  | Used as a source to build a `Locator` via `this.page.locator()`, or when a subclass needs to override it | `protected` when subclasses need it, otherwise `private` |
-| `Locator` | Passed to `expect`/`expect.soft`, or used directly with `.click()`, `.fill()` etc.                       | `private readonly`                                       |
-
-A `string` property can serve as the source for a sibling `Locator` when both are needed:
+Prefer Playwright's built-in semantic locators — `getByRole`, `getByLabel`, `getByText`, `getByPlaceholder`, `getByAltText` — over raw CSS/ID selectors. They target the same accessible role/name/label a user or assistive technology would use, so they read like the user action they represent and keep working across markup/class refactors:
 
 ```ts
-protected submitButton: string = 'button[type="submit"]'
-private readonly signInButton: Locator = this.page.locator(this.submitButton)
+// preferred — targets the accessible role + name, not an implementation detail
+private readonly signInButton: Locator = this.page.getByRole('button', { name: 'Sign In' })
+private readonly userName: Locator = this.page.getByLabel('Username')
 ```
 
-Use `protected` on a `string` selector only when a subclass must reference or override it. Default to `private readonly` for `Locator` properties — they are never inherited.
+Fall back to a CSS/ID `Locator` only when the element has no accessible role, name, or label of its own **and** it is not itself the target of a user action or assertion — typically a structural container used purely to scope a further semantic query:
+
+```ts
+// acceptable — #open-list has no role/label; it only scopes the getByRole/getByText calls below it
+private readonly openList: Locator = this.page.locator('#open-list')
+```
+
+A plain `string` selector property (instead of a resolved `Locator`) is only needed when a subclass must reference or override the raw selector itself; otherwise resolve straight to a `Locator` in the constructor. Use `protected` on such a `string` only when a subclass needs it. Default to `private readonly` for `Locator` properties — they are never inherited.
 
 ## Rules
 
