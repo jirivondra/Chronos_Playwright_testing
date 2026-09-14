@@ -39,15 +39,15 @@ test.describe('Test Login page', () => {
     })
 
     test('Check GitHub Icon Link', async ({ loginPage }) => {
-      await loginPage.checkContactIconLink(contactMeInfo.github)
+      await loginPage.checkContactIconLink(contactMeInfo.github.label)
     })
 
     test('Check Email Icon Link', async ({ loginPage }) => {
-      await loginPage.checkContactIconLink(contactMeInfo.email)
+      await loginPage.checkContactIconLink(contactMeInfo.email.label)
     })
 
     test('Check LinkedIn Icon Link', async ({ loginPage }) => {
-      await loginPage.checkContactIconLink(contactMeInfo.linkedIn)
+      await loginPage.checkContactIconLink(contactMeInfo.linkedIn.label)
     })
   })
 

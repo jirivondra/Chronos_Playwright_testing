@@ -3,50 +3,69 @@ import { AppBar } from './app_bar'
 
 export class SiteBarMenu extends AppBar {
   protected openMenuButton: Locator
-  protected buttonOpenAndCloseSiteMenu: Locator
   protected appVersionTitle: Locator
   protected appVersion: Locator
   protected appVersionTitleText: string
 
   private readonly logoImage: Locator
-  private readonly logoTitle: Locator
   private readonly logoSubtitle: Locator
   private readonly logoTitleText: string
   private readonly logoSubtitleText: string
 
+  private readonly navDashboardLink: Locator
+  private readonly navOpenTasksLink: Locator
+  private readonly navClosedTasksLink: Locator
+  private readonly navCalendarLink: Locator
+  private readonly navArchiveLink: Locator
+
   private readonly navDashboardLabel: Locator
-  private readonly navTasksLabel: Locator
+  private readonly navOpenTasksLabel: Locator
+  private readonly navClosedTasksLabel: Locator
   private readonly navCalendarLabel: Locator
   private readonly navArchiveLabel: Locator
 
   private readonly navDashboardIcon: Locator
-  private readonly navTasksIcon: Locator
+  private readonly navOpenTasksIcon: Locator
+  private readonly navClosedTasksIcon: Locator
   private readonly navCalendarIcon: Locator
   private readonly navArchiveIcon: Locator
 
   constructor(page: Page, path: string) {
     super(page, path)
     this.openMenuButton = page.getByRole('button', { name: 'menu_open' })
-    this.buttonOpenAndCloseSiteMenu = page.locator('#toggle-icon')
-    this.appVersionTitle = page.locator('.sidebar-label.items-center')
     this.appVersionTitleText = 'App version'
+    this.appVersionTitle = page.getByText(this.appVersionTitleText, { exact: true })
     this.appVersion = page.getByText('App version')
 
-    this.logoImage = page.locator('.sidebar-logo-link img')
-    this.logoTitle = page.locator('.sidebar-logo-link h1')
-    this.logoSubtitle = page.locator('.sidebar-logo-link p')
+    this.logoImage = page.getByRole('img', { name: 'Chronos' })
+    this.logoSubtitle = page.getByText('Personal Space')
     this.logoTitleText = 'Chronos'
     this.logoSubtitleText = 'Personal Space'
 
-    this.navDashboardLabel = page.locator('a[data-tip="Dashboard"] span.sidebar-label')
-    this.navTasksLabel = page.locator('a[data-tip="Tasks"] span.sidebar-label')
-    this.navCalendarLabel = page.locator('a[data-tip="Calendar"] span.sidebar-label')
-    this.navArchiveLabel = page.locator('a[data-tip="Archive"] span.sidebar-label')
+    this.navDashboardLink = page.getByRole('link', { name: 'Dashboard' })
+    this.navOpenTasksLink = page.getByRole('link', { name: 'Open Tasks' })
+    this.navClosedTasksLink = page.getByRole('link', { name: 'Closed Tasks' })
+    this.navCalendarLink = page.getByRole('link', { name: 'Calendar' })
+    this.navArchiveLink = page.getByRole('link', { name: 'Archive' })
 
-    this.navDashboardIcon = page.locator('a[data-tip="Dashboard"] span.material-symbols-outlined')
-    this.navTasksIcon = page.locator('a[data-tip="Tasks"] span.material-symbols-outlined')
-    this.navCalendarIcon = page.locator('a[data-tip="Calendar"] span.material-symbols-outlined')
-    this.navArchiveIcon = page.locator('a[data-tip="Archive"] span.material-symbols-outlined')
+    this.navDashboardLabel = this.navDashboardLink.getByText('Dashboard', { exact: true })
+    this.navOpenTasksLabel = this.navOpenTasksLink.getByText('Open Tasks', { exact: true })
+    this.navClosedTasksLabel = this.navClosedTasksLink.getByText('Closed Tasks', { exact: true })
+    this.navCalendarLabel = this.navCalendarLink.getByText('Calendar', { exact: true })
+    this.navArchiveLabel = this.navArchiveLink.getByText('Archive', { exact: true })
+
+    this.navDashboardIcon = this.navDashboardLink.locator('span.material-symbols-outlined')
+    this.navOpenTasksIcon = this.navOpenTasksLink.locator('span.material-symbols-outlined')
+    this.navClosedTasksIcon = this.navClosedTasksLink.locator('span.material-symbols-outlined')
+    this.navCalendarIcon = this.navCalendarLink.locator('span.material-symbols-outlined')
+    this.navArchiveIcon = this.navArchiveLink.locator('span.material-symbols-outlined')
+  }
+
+  async checkMenuExpandedOnLoad(): Promise<this> {
+    await this.checkVisibilityForOpenMenu()
+    await this.checkLogoExpandedVisible()
+    await this.checkNavExpandedVisible()
+    return this
   }
 
   async checkVisibilityForOpenMenu(): Promise<this> {
@@ -64,11 +83,11 @@ export class SiteBarMenu extends AppBar {
     await this.checkLogoExpandedVisible()
     await this.checkVersionOfAppIsVisible()
     await this.checkNavExpandedVisible()
-    await this.buttonOpenAndCloseSiteMenu.click()
+    await this.openMenuButton.click()
     await this.checkLogoCollapsedHidden()
     await this.checkVersionOfAppIsNotVisible()
     await this.checkNavCollapsedVisible()
-    await this.buttonOpenAndCloseSiteMenu.click()
+    await this.openMenuButton.click()
     return this
   }
 
@@ -94,15 +113,15 @@ export class SiteBarMenu extends AppBar {
   }
 
   async checkLogoExpandedVisible(): Promise<this> {
-    await expect.soft(this.logoTitle).toBeVisible()
-    await expect.soft(this.logoTitle).toHaveText(this.logoTitleText)
+    await expect.soft(this.h1).toBeVisible()
+    await expect.soft(this.h1).toHaveText(this.logoTitleText)
     await expect.soft(this.logoSubtitle).toBeVisible()
     await expect.soft(this.logoSubtitle).toHaveText(this.logoSubtitleText)
     return this
   }
 
   async checkLogoCollapsedHidden(): Promise<this> {
-    await expect.soft(this.logoTitle).not.toBeVisible()
+    await expect.soft(this.h1).not.toBeVisible()
     await expect.soft(this.logoSubtitle).not.toBeVisible()
     return this
   }
@@ -110,8 +129,10 @@ export class SiteBarMenu extends AppBar {
   async checkNavExpandedVisible(): Promise<this> {
     await expect.soft(this.navDashboardIcon).toBeVisible()
     await expect.soft(this.navDashboardLabel).toBeVisible()
-    await expect.soft(this.navTasksIcon).toBeVisible()
-    await expect.soft(this.navTasksLabel).toBeVisible()
+    await expect.soft(this.navOpenTasksIcon).toBeVisible()
+    await expect.soft(this.navOpenTasksLabel).toBeVisible()
+    await expect.soft(this.navClosedTasksIcon).toBeVisible()
+    await expect.soft(this.navClosedTasksLabel).toBeVisible()
     await expect.soft(this.navCalendarIcon).toBeVisible()
     await expect.soft(this.navCalendarLabel).toBeVisible()
     await expect.soft(this.navArchiveIcon).toBeVisible()
@@ -122,8 +143,10 @@ export class SiteBarMenu extends AppBar {
   async checkNavCollapsedVisible(): Promise<this> {
     await expect.soft(this.navDashboardIcon).toBeVisible()
     await expect.soft(this.navDashboardLabel).not.toBeVisible()
-    await expect.soft(this.navTasksIcon).toBeVisible()
-    await expect.soft(this.navTasksLabel).not.toBeVisible()
+    await expect.soft(this.navOpenTasksIcon).toBeVisible()
+    await expect.soft(this.navOpenTasksLabel).not.toBeVisible()
+    await expect.soft(this.navClosedTasksIcon).toBeVisible()
+    await expect.soft(this.navClosedTasksLabel).not.toBeVisible()
     await expect.soft(this.navCalendarIcon).toBeVisible()
     await expect.soft(this.navCalendarLabel).not.toBeVisible()
     await expect.soft(this.navArchiveIcon).toBeVisible()

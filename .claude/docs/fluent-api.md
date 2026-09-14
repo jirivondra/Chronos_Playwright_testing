@@ -13,7 +13,7 @@ Every method that should support chaining must declare `Promise<this>` as its re
 
 ```ts
 async fillUserName(userName: string): Promise<this> {
-  await this.page.locator(this.userName).fill(userName)
+  await this.userName.fill(userName)
   return this
 }
 

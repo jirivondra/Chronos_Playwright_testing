@@ -8,8 +8,6 @@ export class OpenTask extends SiteBarMenu {
   readonly openListEmptyMessage: Locator
   private readonly openListEmptyMessageText: string
   readonly expandOpenListButton: Locator
-  private readonly editButtonSelector: string
-  private readonly deleteButtonSelector: string
   private readonly todosEndpoint: string
 
   constructor(page: Page, path: string) {
@@ -19,8 +17,6 @@ export class OpenTask extends SiteBarMenu {
     this.openListEmptyMessageText = dashboardPageData.emptyMessage
     this.openListEmptyMessage = this.openList.getByText(this.openListEmptyMessageText)
     this.expandOpenListButton = this.openList.getByRole('button', { name: /Zobrazit všechny/ })
-    this.editButtonSelector = '.edit-btn'
-    this.deleteButtonSelector = '.delete-btn'
     this.todosEndpoint = '/todos'
   }
 
@@ -29,11 +25,15 @@ export class OpenTask extends SiteBarMenu {
   }
 
   protected taskEditButton(taskName: string): Locator {
-    return this.taskGroup.filter({ hasText: taskName }).locator(this.editButtonSelector)
+    return this.taskGroup
+      .filter({ hasText: taskName })
+      .getByRole('button', { name: 'edit', exact: true })
   }
 
   protected taskDeleteButton(taskName: string): Locator {
-    return this.taskGroup.filter({ hasText: taskName }).locator(this.deleteButtonSelector)
+    return this.taskGroup
+      .filter({ hasText: taskName })
+      .getByRole('button', { name: 'delete', exact: true })
   }
 
   async clickExpandButton(): Promise<this> {

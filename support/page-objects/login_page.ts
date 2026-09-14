@@ -3,12 +3,10 @@ import { ToTopButton } from './common/to_top_button'
 import { DashboardPage } from './dashboard_page'
 
 export class LoginPage extends ToTopButton {
-  protected userName: string
-  protected password: string
-  protected submitButton: string
   readonly signInButton: Locator
   readonly createAccountLink: Locator
   readonly forgetAccessLink: Locator
+  private readonly userName: Locator
   private readonly passwordInput: Locator
   private readonly passwordToggle: Locator
   private readonly passwordHiddenType: string
@@ -16,25 +14,23 @@ export class LoginPage extends ToTopButton {
 
   constructor(page: Page) {
     super(page, '/login.html')
-    this.userName = '#username'
-    this.password = '#password'
-    this.submitButton = 'button[type="submit"]'
-    this.signInButton = this.page.locator(this.submitButton)
+    this.userName = this.page.getByLabel('Username')
+    this.passwordInput = this.page.getByLabel('Password')
+    this.signInButton = this.page.getByRole('button', { name: 'Sign In' })
     this.createAccountLink = this.page.getByRole('link', { name: 'Create Account' })
     this.forgetAccessLink = this.page.getByRole('link', { name: 'Forgot Access?' })
-    this.passwordInput = this.page.locator(this.password)
-    this.passwordToggle = this.page.locator('#toggle-password')
+    this.passwordToggle = this.page.getByRole('button', { name: 'visibility' })
     this.passwordHiddenType = 'password'
     this.passwordVisibleType = 'text'
   }
 
   async fillUserName(userName: string): Promise<this> {
-    await this.page.locator(this.userName).fill(userName)
+    await this.userName.fill(userName)
     return this
   }
 
   async fillPassword(password: string): Promise<this> {
-    await this.page.locator(this.password).fill(password)
+    await this.passwordInput.fill(password)
     return this
   }
 
