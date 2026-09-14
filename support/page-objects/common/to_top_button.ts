@@ -6,7 +6,7 @@ export class ToTopButton extends Footer {
 
   constructor(page: Page, path: string) {
     super(page, path)
-    this.toTopButton = this.page.locator('#back-to-top')
+    this.toTopButton = this.page.getByRole('button', { name: 'arrow_upward' })
   }
 
   async checkToTopButtonVisible(): Promise<this> {

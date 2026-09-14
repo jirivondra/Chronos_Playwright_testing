@@ -6,13 +6,12 @@ export class DashboardPage extends OpenTask {
   readonly newTaskButton: Locator
   private readonly doneList: Locator
   private readonly doneListTaskTitle: Locator
-  private readonly checkboxInput = 'input[type="checkbox"]'
 
   constructor(page: Page) {
     super(page, '/dashboard.html')
-    this.newTaskButton = page.locator('#new-task-btn')
+    this.newTaskButton = page.getByRole('button', { name: 'New Task' })
     this.doneList = page.locator('#done-list')
-    this.doneListTaskTitle = this.doneList.locator('h4')
+    this.doneListTaskTitle = this.doneList.getByRole('heading', { level: 4 })
   }
 
   private taskInFinishSection(taskName: string): Locator {
@@ -20,7 +19,7 @@ export class DashboardPage extends OpenTask {
   }
 
   private taskCheckbox(taskName: string): Locator {
-    return this.taskGroup.filter({ hasText: taskName }).locator(this.checkboxInput)
+    return this.taskGroup.filter({ hasText: taskName }).getByRole('checkbox')
   }
 
   async checkNewTaskButtonIsVisible(): Promise<this> {
