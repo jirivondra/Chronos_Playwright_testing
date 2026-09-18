@@ -25,15 +25,15 @@ npx playwright install
 
 ## Visual Testing
 
-Visual regression tests live alongside the functional tests in `tests/regression/*.spec.ts`, under their own `Visual Tests For [Page]` describe block (e.g. `login_page.spec.ts`). They compare a full-page screenshot against a committed baseline PNG per browser/OS, stored in `tests/regression/*.spec.ts-snapshots/`.
+Visual regression tests live alongside the functional tests in `tests/regression/*.spec.ts`, under their own `Visual Tests For [Page]` describe block (e.g. `login_page.spec.ts`). They compare a full-page screenshot against a committed baseline PNG per browser, stored in `tests/regression/*.spec.ts-snapshots/`. These run in CI (see CI/CD below), so their baselines are generated on Linux to match the CI runner exactly.
 
-When an intentional UI change makes a visual test fail, review the diff (`npm run test_report`), then regenerate the baseline for the affected spec file:
+**Requires [Docker](https://www.docker.com/) running locally.** Baselines are named `-linux.png` regardless of your host OS — updating them always runs Playwright inside Docker's official image, never bare `npx playwright test` on the host, otherwise you'd produce a `-darwin.png`/`-win32.png` file CI can never match against. With the app running locally (`localhost:3000`/`localhost:8000`) and Docker running, regenerate the baseline for a spec file with:
 
 ```bash
 task update-snapshots -- tests/regression/login_page.spec.ts
 ```
 
-Commit the updated PNG(s) together with the change that caused them — a missing baseline isn't a silent gap, it makes the test fail loudly for anyone else ("A snapshot doesn't exist"), but only once you actually run the suite. Since the `*.spec.ts-snapshots/` folders aren't tracked until you `git add` them, double-check they're staged before pushing a new or updated visual test.
+Review the diff first (`npm run test_report`) to confirm the change is intentional before updating. Commit the updated PNG(s) together with the change that caused them — a missing baseline isn't a silent gap, it makes the test fail loudly for anyone else ("A snapshot doesn't exist"), but only once you actually run the suite. Since the `*.spec.ts-snapshots/` folders aren't tracked until you `git add` them, double-check they're staged before pushing a new or updated visual test.
 
 ## Linting & Formatting
 
