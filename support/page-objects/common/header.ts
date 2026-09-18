@@ -28,4 +28,9 @@ export class Header extends BasePage {
     await expect.soft(this.h2).toHaveText(text)
     return this
   }
+
+  async checkFullPageSnapshot(name: string): Promise<this> {
+    await expect(this.page).toHaveScreenshot(name, { fullPage: true })
+    return this
+  }
 }
