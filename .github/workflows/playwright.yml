@@ -1,13 +1,14 @@
-name: Playwright Tests
+name: CI
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
+
 jobs:
-  test:
-    timeout-minutes: 60
+  lint:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,3 +21,135 @@ jobs:
         run: npm run format-check
       - name: Check lint (ESLint)
         run: npm run lint
+
+  api-tests:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout Chronos_Playwright_testing
+        uses: actions/checkout@v4
+
+      - name: Checkout Chronost_App (backend)
+        uses: actions/checkout@v4
+        with:
+          repository: jirivondra/Chronost_App
+          path: chronost-app
+
+      - name: Checkout mocha_api_soap_testing
+        uses: actions/checkout@v4
+        with:
+          repository: jirivondra/mocha_api_soap_testing
+          path: mocha-api-tests
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Start backend
+        working-directory: chronost-app
+        run: |
+          pip install -r api/requirements.txt
+          nohup python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &
+          timeout 30 bash -c 'until curl -sf -u admin:secret http://localhost:8000/todos > /dev/null; do sleep 1; done'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: https://npm.pkg.github.com
+          scope: '@jirivondra'
+
+      - name: Install and run Mocha REST regression suite
+        working-directory: mocha-api-tests
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_URL: http://localhost:8000
+          API_USERNAME: admin
+          API_PASSWORD: secret
+        run: |
+          npm ci
+          npm run test:regression
+
+  regression:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Chronos_Playwright_testing
+        uses: actions/checkout@v4
+
+      - name: Checkout Chronost_App
+        uses: actions/checkout@v4
+        with:
+          repository: jirivondra/Chronost_App
+          path: chronost-app
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Start backend and frontend
+        working-directory: chronost-app
+        run: |
+          pip install -r api/requirements.txt
+          nohup python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &
+          nohup python3 -m http.server 3000 --directory frontend &
+          timeout 30 bash -c 'until curl -sf -u admin:secret http://localhost:8000/todos > /dev/null; do sleep 1; done'
+          timeout 30 bash -c 'until curl -sf http://localhost:3000/login.html > /dev/null; do sleep 1; done'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies and browsers
+        run: |
+          npm ci
+          npx playwright install --with-deps
+          npx playwright install chrome
+
+      - name: Run functional regression suite (excludes visual tests)
+        run: npx playwright test --grep-invert "Visual Tests"
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-regression
+          path: playwright-report/
+          retention-days: 7
+
+  visual:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
+    steps:
+      - name: Checkout Chronos_Playwright_testing
+        uses: actions/checkout@v4
+
+      - name: Checkout Chronost_App
+        uses: actions/checkout@v4
+        with:
+          repository: jirivondra/Chronost_App
+          path: chronost-app
+
+      - name: Start frontend
+        working-directory: chronost-app
+        run: |
+          nohup python3 -m http.server 3000 --directory frontend &
+          timeout 30 bash -c 'until curl -sf http://localhost:3000/login.html > /dev/null; do sleep 1; done'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install chrome
+
+      - name: Run visual regression tests
+        run: npx playwright test --grep "Visual Tests" --workers=2
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-visual
+          path: playwright-report/
+          retention-days: 7
