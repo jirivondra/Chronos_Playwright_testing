@@ -5,6 +5,7 @@ import {
   negativeLoginCases,
 } from '../../support/test-data/login_page_data'
 import { contactMeInfo } from '../../support/test-data/general'
+import { themeCases } from '../../support/test-data/visual_testing_data'
 
 test.describe('Test Login page', () => {
   test.describe('Atomic Tests For Login Form', () => {
@@ -87,6 +88,16 @@ test.describe('Test Login page', () => {
           .then((l) => l.fillPassword(password))
           .then((l) => l.clickSubmit())
           .then((l) => l.checkUrl(loginPageData.urlLoginPage))
+      })
+    })
+  })
+
+  themeCases.forEach(({ description, theme }) => {
+    test.describe('Visual Tests For Login Page', () => {
+      test.use({ theme })
+
+      test(`Login Page Matches ${description} Snapshot`, async ({ loginPage }) => {
+        await loginPage.checkFullPageSnapshot(`login-page-${theme}.png`)
       })
     })
   })

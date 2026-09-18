@@ -5,7 +5,10 @@ import { NewTaskPage } from '../page-objects/new_task_page'
 import { LogoutPage } from '../page-objects/logout_page'
 import { loginCredentials } from '../test-data/login_page_data'
 
+export type Theme = 'light' | 'dark'
+
 export type AuthFixtures = {
+  theme: Theme
   loginPage: LoginPage
   dashboardPage: DashboardPage
   newTaskPage: NewTaskPage
@@ -13,7 +16,13 @@ export type AuthFixtures = {
 }
 
 export const authFixtures = base.extend<AuthFixtures>({
-  loginPage: async ({ page }, use) => {
+  theme: ['light', { option: true }],
+
+  loginPage: async ({ page, theme }, use) => {
+    await page.addInitScript((t) => {
+      localStorage.setItem('theme', t)
+    }, theme)
+
     const loginPage = new LoginPage(page)
 
     await loginPage.visit()
@@ -44,7 +53,11 @@ export const authFixtures = base.extend<AuthFixtures>({
 
     await dashboardPage.deleteTaskByTitle(newTaskPage.taskName)
   },
-  logoutPage: async ({ page }, use) => {
+  logoutPage: async ({ page, theme }, use) => {
+    await page.addInitScript((t) => {
+      localStorage.setItem('theme', t)
+    }, theme)
+
     const logoutPage = new LogoutPage(page)
 
     await logoutPage.visit()

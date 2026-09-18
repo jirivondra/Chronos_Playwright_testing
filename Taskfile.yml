@@ -24,6 +24,10 @@ tasks:
       - task: run-test
       - task: test-report
 
+  update-snapshots:
+    desc: 'Regenerate visual snapshots for a spec file (usage: task update-snapshots -- tests/regression/login_page.spec.ts)'
+    cmd: npx playwright test {{.CLI_ARGS}} --update-snapshots
+
   # --- Code quality ---
   lint:
     desc: Check code with ESLint

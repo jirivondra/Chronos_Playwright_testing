@@ -23,6 +23,18 @@ npx playwright install
 | `npm run test_ui`     | Open Playwright UI for interactive debugging |
 | `npm run test_report` | Show the HTML report from the last run       |
 
+## Visual Testing
+
+Visual regression tests live alongside the functional tests in `tests/regression/*.spec.ts`, under their own `Visual Tests For [Page]` describe block (e.g. `login_page.spec.ts`). They compare a full-page screenshot against a committed baseline PNG per browser/OS, stored in `tests/regression/*.spec.ts-snapshots/`.
+
+When an intentional UI change makes a visual test fail, review the diff (`npm run test_report`), then regenerate the baseline for the affected spec file:
+
+```bash
+task update-snapshots -- tests/regression/login_page.spec.ts
+```
+
+Commit the updated PNG(s) together with the change that caused them — a missing baseline isn't a silent gap, it makes the test fail loudly for anyone else ("A snapshot doesn't exist"), but only once you actually run the suite. Since the `*.spec.ts-snapshots/` folders aren't tracked until you `git add` them, double-check they're staged before pushing a new or updated visual test.
+
 ## Linting & Formatting
 
 | Command                | Description                             |
