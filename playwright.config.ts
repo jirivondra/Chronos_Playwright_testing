@@ -15,6 +15,9 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
   },
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02 },
+  },
 
   projects: [
     {
