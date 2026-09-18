@@ -65,8 +65,8 @@ jobs:
           npm ci
           npm run test:regression
 
-  regression:
-    timeout-minutes: 30
+  smoke:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     env:
       BASE_URL: http://localhost:3000
@@ -91,7 +91,7 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Start app, install dependencies, run functional suite
+      - name: Start app, install dependencies, run smoke suite
         run: |
           pip install -r chronost-app/api/requirements.txt
           (cd chronost-app && nohup python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &)
@@ -101,7 +101,7 @@ jobs:
           npm ci
           npx playwright install --with-deps
           npx playwright install chrome
-          npx playwright test --grep-invert "Visual Tests"
+          npx playwright test tests/smoke
 
       - uses: actions/upload-artifact@v4
         if: failure()
