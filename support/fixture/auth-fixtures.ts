@@ -16,7 +16,7 @@ export const authFixtures = base.extend<AuthFixtures>({
   loginPage: async ({ page }, use) => {
     const loginPage = new LoginPage(page)
 
-    await loginPage.visit()
+    await loginPage.goto()
     await use(loginPage)
 
     await loginPage.clearCache()
@@ -32,7 +32,7 @@ export const authFixtures = base.extend<AuthFixtures>({
 
     const dashboardPage = new DashboardPage(page)
 
-    await dashboardPage.visit()
+    await dashboardPage.goto()
     await use(dashboardPage)
 
     await dashboardPage.clearCache()
@@ -47,7 +47,7 @@ export const authFixtures = base.extend<AuthFixtures>({
   logoutPage: async ({ page }, use) => {
     const logoutPage = new LogoutPage(page)
 
-    await logoutPage.visit()
+    await logoutPage.goto()
     await use(logoutPage)
 
     await logoutPage.clearCache()
