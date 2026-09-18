@@ -23,6 +23,7 @@ jobs:
         run: npm run lint
 
   api-tests:
+    needs: prettier-and-lint
     timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
@@ -66,6 +67,7 @@ jobs:
           npm run test:regression
 
   smoke:
+    needs: api-tests
     timeout-minutes: 15
     runs-on: ubuntu-latest
     env:
