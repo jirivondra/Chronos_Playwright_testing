@@ -25,9 +25,6 @@ jobs:
   api-tests:
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
     steps:
       - name: Checkout Chronos_Playwright_testing
         uses: actions/checkout@v4
@@ -56,7 +53,7 @@ jobs:
 
       - name: Start backend, install dependencies, run Mocha REST regression suite
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
           BASE_URL: http://localhost:8000
           API_USERNAME: admin
           API_PASSWORD: secret
