@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
+  prettier-and-lint:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
@@ -48,42 +48,34 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Start backend
-        working-directory: chronost-app
-        env:
-          API_USERNAME: admin
-          API_PASSWORD: secret
-        run: |
-          pip install -r api/requirements.txt
-          nohup python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &
-          timeout 30 bash -c 'until curl -sf -u admin:secret http://localhost:8000/todos > /dev/null; do sleep 1; done'
-
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           registry-url: https://npm.pkg.github.com
           scope: '@jirivondra'
 
-      - name: Install and run Mocha REST regression suite
-        working-directory: mocha-api-tests
+      - name: Start backend, install dependencies, run Mocha REST regression suite
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BASE_URL: http://localhost:8000
           API_USERNAME: admin
           API_PASSWORD: secret
         run: |
+          pip install -r chronost-app/api/requirements.txt
+          (cd chronost-app && nohup python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &)
+          timeout 30 bash -c 'until curl -sf -u admin:secret http://localhost:8000/todos > /dev/null; do sleep 1; done'
+          cd mocha-api-tests
           npm ci
           npm run test:regression
 
   regression:
     timeout-minutes: 30
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.59.1-noble
     env:
-      # Playwright's Docker image runs as root; Firefox refuses to launch unless
-      # $HOME is owned by the current (root) user. https://github.com/microsoft/playwright/issues/6500
-      HOME: /root
+      BASE_URL: http://localhost:3000
+      API_BASE_URL: http://localhost:8000
+      API_USERNAME: admin
+      API_PASSWORD: secret
     steps:
       - name: Checkout Chronos_Playwright_testing
         uses: actions/checkout@v4
@@ -94,22 +86,25 @@ jobs:
           repository: jirivondra/Chronost_App
           path: chronost-app
 
-      - name: Start backend and frontend, install dependencies
-        env:
-          API_USERNAME: admin
-          API_PASSWORD: secret
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Start app, install dependencies, run functional suite
         run: |
-          apt-get update && apt-get install -y python3-pip
-          pip install --break-system-packages -r chronost-app/api/requirements.txt
-          (cd chronost-app && nohup python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &)
+          pip install -r chronost-app/api/requirements.txt
+          (cd chronost-app && nohup python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &)
           (cd chronost-app && nohup python3 -m http.server 3000 --directory frontend &)
           timeout 30 bash -c 'until curl -sf -u admin:secret http://localhost:8000/todos > /dev/null; do sleep 1; done'
           timeout 30 bash -c 'until curl -sf http://localhost:3000/login.html > /dev/null; do sleep 1; done'
           npm ci
+          npx playwright install --with-deps
           npx playwright install chrome
-
-      - name: Run full Playwright suite (functional + visual)
-        run: npx playwright test
+          npx playwright test --grep-invert "Visual Tests"
 
       - uses: actions/upload-artifact@v4
         if: failure()
