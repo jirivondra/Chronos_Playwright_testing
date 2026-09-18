@@ -4,7 +4,7 @@ Fixtures extend Playwright's built-in `test` with page object instances. Each fi
 
 ## Purpose
 
-- Removes repetitive `new PageObject(page)` and `visit()` calls from every test.
+- Removes repetitive `new PageObject(page)` and `goto()` calls from every test.
 - Guarantees a clean browser state after each test via `clearCache()`.
 - Keeps test files focused on assertions, not setup.
 
@@ -13,7 +13,7 @@ Fixtures extend Playwright's built-in `test` with page object instances. Each fi
 ```
 support/fixture/
   index.ts            — merges all fixture groups and re-exports test + expect
-  auth-fixtures.ts    — fixtures for authenticated pages (injects session token before visit)
+  auth-fixtures.ts    — fixtures for authenticated pages (injects session token before goto)
   noauth-fixtures.ts  — fixtures for pages tested without authentication (redirect testing)
 ```
 
@@ -29,13 +29,13 @@ test('Check H1 On Page Login', async ({ loginPage }) => {
 })
 ```
 
-The fixture handles `visit()` before the test body runs and `clearCache()` after — the test itself only interacts with the page.
+The fixture handles `goto()` before the test body runs and `clearCache()` after — the test itself only interacts with the page.
 
 ## Fixture groups
 
 ### Authenticated fixtures (`auth-fixtures.ts`)
 
-Used for pages that require the user to be logged in. Instead of going through the login form on every test, the fixture injects a session token directly into `sessionStorage` via `addInitScript` before `visit()` is called:
+Used for pages that require the user to be logged in. Instead of going through the login form on every test, the fixture injects a session token directly into `sessionStorage` via `addInitScript` before `goto()` is called:
 
 ```ts
 dashboardPage: async ({ page }, use) => {
@@ -48,7 +48,7 @@ dashboardPage: async ({ page }, use) => {
   }, token)
 
   const dashboardPage = new DashboardPage(page)
-  await dashboardPage.visit()
+  await dashboardPage.goto()
   await use(dashboardPage)
   await dashboardPage.clearCache()
 },
@@ -63,13 +63,13 @@ Used specifically for testing redirect behaviour when a user without a valid ses
 ```ts
 unAuthDashboardPage: async ({ page }, use) => {
   const dashboardPage = new DashboardPage(page)
-  await dashboardPage.visit()
+  await dashboardPage.goto()
   await use(dashboardPage)
   await dashboardPage.clearCache()
 },
 unAuthNewTaskPage: async ({ page }, use) => {
   const newTaskPage = new NewTaskPage(page)
-  await newTaskPage.visit()
+  await newTaskPage.goto()
   await use(newTaskPage)
   await newTaskPage.clearCache()
 },
@@ -97,7 +97,7 @@ This fixture does not call `clearCache()` — the parent `dashboardPage` fixture
 
 1. Decide which group the fixture belongs to: `auth-fixtures.ts` for authenticated pages, `noauth-fixtures.ts` for unauthenticated access tests.
 2. Extend `base` from `@playwright/test` with a typed fixture object.
-3. For authenticated pages, inject the session token via `addInitScript` before `visit()`.
+3. For authenticated pages, inject the session token via `addInitScript` before `goto()`.
 4. Export the fixture group and make sure it is included in `mergeTests()` in `index.ts`.
 
 ```ts
@@ -116,7 +116,7 @@ export { expect } from '@playwright/test'
 Standard fixture (e.g. `loginPage`, `logoutPage`) — no auth, no dependency:
 
 ```
-[before test]  new PageObject(page)  →  visit()
+[before test]  new PageObject(page)  →  goto()
 [test body]    use(pageObject)       ← test receives instance here
 [after test]   clearCache()
 ```
@@ -124,7 +124,7 @@ Standard fixture (e.g. `loginPage`, `logoutPage`) — no auth, no dependency:
 Authenticated fixture (e.g. `dashboardPage`):
 
 ```
-[before test]  addInitScript (token → sessionStorage)  →  new PageObject(page)  →  visit()
+[before test]  addInitScript (token → sessionStorage)  →  new PageObject(page)  →  goto()
 [test body]    use(pageObject)                          ← test receives instance here
 [after test]   clearCache()
 ```
@@ -203,7 +203,7 @@ test.describe('Atomic Tests For Dashboard', () => {
 
 - Always import `test` and `expect` from `support/fixture`, never from `@playwright/test`.
 - Each fixture file contains one group of related page fixtures (`auth-fixtures.ts` or `noauth-fixtures.ts`).
-- Authenticated fixtures must inject the session token via `addInitScript` before `visit()`.
+- Authenticated fixtures must inject the session token via `addInitScript` before `goto()`.
 - Unauthenticated fixtures do not inject any token — the missing auth is the condition being tested.
 - Dependent fixtures (those that take another fixture instead of `page`) handle teardown via API, not `clearCache()`.
 - Do not put test logic or assertions inside a fixture — fixtures only prepare state.

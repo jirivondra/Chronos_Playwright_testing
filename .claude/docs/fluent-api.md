@@ -29,7 +29,7 @@ async checkH1(text: string): Promise<this> {
 
 ```ts
 await loginPage
-  .visit()
+  .goto()
   .then((p) => p.fillUserName('admin'))
   .then((p) => p.fillPassword('secret'))
   .then((p) => p.clickSubmit())
