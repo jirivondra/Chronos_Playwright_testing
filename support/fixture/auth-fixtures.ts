@@ -53,7 +53,11 @@ export const authFixtures = base.extend<AuthFixtures>({
 
     await dashboardPage.deleteTaskByTitle(newTaskPage.taskName)
   },
-  logoutPage: async ({ page }, use) => {
+  logoutPage: async ({ page, theme }, use) => {
+    await page.addInitScript((t) => {
+      localStorage.setItem('theme', t)
+    }, theme)
+
     const logoutPage = new LogoutPage(page)
 
     await logoutPage.visit()
