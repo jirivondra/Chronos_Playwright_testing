@@ -54,6 +54,9 @@ jobs:
       - uses: arduino/setup-task@v2
 
       - name: Start backend
+        env:
+          API_USERNAME: admin
+          API_PASSWORD: secret
         run: task start-backend CHRONOST_APP_DIR=chronost-app
 
       - name: Install dependencies and run Mocha REST regression suite
