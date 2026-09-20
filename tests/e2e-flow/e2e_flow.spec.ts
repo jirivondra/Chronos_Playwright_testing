@@ -2,7 +2,7 @@ import { test } from '../../support/fixture'
 import { loginPageData, loginCredentials } from '../../support/test-data/login_page_data'
 import type { DashboardPage } from '../../support/page-objects/dashboard_page'
 
-test.describe('Smoke Test', () => {
+test.describe('E2E Flow Test', () => {
   test.describe('E2E Test For Full Application Flow', () => {
     let createdTaskName: string | undefined
     let dashboardForCleanup: DashboardPage | undefined

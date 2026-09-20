@@ -24,6 +24,32 @@ tasks:
       - task: run-test
       - task: test-report
 
+  # --- App (Chronost_App) ---
+  start-backend:
+    desc: 'Start the Chronost_App backend and wait until it responds. Usage: task start-backend [CHRONOST_APP_DIR=../Chronost_App]'
+    vars:
+      CHRONOST_APP_DIR: '{{.CHRONOST_APP_DIR | default "../Chronost_App"}}'
+    cmd: |
+      python3 -m pip install -r {{.CHRONOST_APP_DIR}}/api/requirements.txt
+      (cd {{.CHRONOST_APP_DIR}} && nohup python3 -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &)
+      i=0; until curl -sf -u admin:secret http://localhost:8000/todos > /dev/null; do i=$((i+1)); [ $i -ge 30 ] && { echo "backend did not become ready in 30s" >&2; exit 1; }; sleep 1; done
+
+  start-frontend:
+    desc: 'Start the Chronost_App static frontend and wait until it responds. Usage: task start-frontend [CHRONOST_APP_DIR=../Chronost_App]'
+    vars:
+      CHRONOST_APP_DIR: '{{.CHRONOST_APP_DIR | default "../Chronost_App"}}'
+    cmd: |
+      (cd {{.CHRONOST_APP_DIR}} && nohup python3 -m http.server 3000 --directory frontend &)
+      i=0; until curl -sf http://localhost:3000/login.html > /dev/null; do i=$((i+1)); [ $i -ge 30 ] && { echo "frontend did not become ready in 30s" >&2; exit 1; }; sleep 1; done
+
+  start-app:
+    desc: 'Start both the Chronost_App backend and frontend. Usage: task start-app [CHRONOST_APP_DIR=../Chronost_App]'
+    cmds:
+      - task: start-backend
+        vars: { CHRONOST_APP_DIR: '{{.CHRONOST_APP_DIR}}' }
+      - task: start-frontend
+        vars: { CHRONOST_APP_DIR: '{{.CHRONOST_APP_DIR}}' }
+
   # --- Code quality ---
   lint:
     desc: Check code with ESLint

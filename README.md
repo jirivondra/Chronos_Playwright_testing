@@ -84,7 +84,7 @@ Tests are configured to run on:
 
 1. **`prettier-and-lint`** — `npm run format-check` + `npm run lint`.
 2. **`api-tests`** (only if 1 passes) — checks out [Chronost_App](https://github.com/jirivondra/Chronost_App) and [mocha_api_soap_testing](https://github.com/jirivondra/mocha_api_soap_testing), starts the backend, and runs the Mocha REST regression suite (status-code checks across all `/todos` endpoints).
-3. **`smoke`** (only if 2 passes) — checks out `Chronost_App`, starts the full app, and runs `tests/smoke` (the end-to-end "Full Application Flow" test).
+3. **`e2e-flow`** (only if 2 passes) — checks out `Chronost_App`, starts the full app, and runs `tests/e2e-flow` (the end-to-end "Full Application Flow" test).
 
 Playwright's own CI-awareness (`playwright.config.ts`): `forbidOnly` (rejects a committed `test.only`) and 2 retries are enabled whenever `process.env.CI` is set.
 

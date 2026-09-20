@@ -15,12 +15,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      - uses: arduino/setup-task@v2
       - name: Install dependencies
         run: npm ci
-      - name: Check formatting (Prettier)
-        run: npm run format-check
-      - name: Check lint (ESLint)
-        run: npm run lint
+      - name: Check formatting and lint
+        run: task check
 
   api-tests:
     needs: prettier-and-lint
@@ -52,21 +51,23 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: '@jirivondra'
 
-      - name: Start backend, install dependencies, run Mocha REST regression suite
+      - uses: arduino/setup-task@v2
+
+      - name: Start backend
+        run: task start-backend CHRONOST_APP_DIR=chronost-app
+
+      - name: Install dependencies and run Mocha REST regression suite
+        working-directory: mocha-api-tests
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
           BASE_URL: http://localhost:8000
           API_USERNAME: admin
           API_PASSWORD: secret
         run: |
-          pip install -r chronost-app/api/requirements.txt
-          (cd chronost-app && nohup python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &)
-          timeout 30 bash -c 'until curl -sf -u admin:secret http://localhost:8000/todos > /dev/null; do sleep 1; done'
-          cd mocha-api-tests
           npm ci
           npm run test:regression
 
-  smoke:
+  e2e-flow:
     needs: api-tests
     timeout-minutes: 15
     runs-on: ubuntu-latest
@@ -93,17 +94,19 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Start app, install dependencies, run smoke suite
+      - uses: arduino/setup-task@v2
+
+      - name: Start app
+        run: task start-app CHRONOST_APP_DIR=chronost-app
+
+      - name: Install dependencies and browsers
         run: |
-          pip install -r chronost-app/api/requirements.txt
-          (cd chronost-app && nohup python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 &)
-          (cd chronost-app && nohup python3 -m http.server 3000 --directory frontend &)
-          timeout 30 bash -c 'until curl -sf -u admin:secret http://localhost:8000/todos > /dev/null; do sleep 1; done'
-          timeout 30 bash -c 'until curl -sf http://localhost:3000/login.html > /dev/null; do sleep 1; done'
           npm ci
           npx playwright install --with-deps
           npx playwright install chrome
-          npx playwright test tests/smoke
+
+      - name: Run e2e flow suite
+        run: npx playwright test tests/e2e-flow
 
       - uses: actions/upload-artifact@v4
         if: failure()
