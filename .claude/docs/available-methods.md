@@ -112,20 +112,20 @@ Adds top navigation bar with logout action.
 
 Adds sidebar menu with logo, navigation links, and app version.
 
-| Method                          | Signature            | Description                                                                                                  |
-| ------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `checkMenuExpandedOnLoad`       | `() → Promise<this>` | Asserts menu is in expanded state on load: open button visible, logo and nav labels visible                  |
-| `checkVisibilityForOpenMenu`    | `() → Promise<this>` | Asserts open-menu button is visible                                                                          |
-| `checkVisibilityForCloseMenu`   | `() → Promise<this>` | Asserts open-menu button is not visible                                                                      |
-| `checkOpenAndCloseSiteMenu`     | `() → Promise<this>` | Full open/close cycle: checks expanded state, collapses, checks collapsed state, expands again               |
-| `checkVersionTitle`             | `() → Promise<this>` | Soft-asserts "App version" label is visible with correct text                                                |
-| `checkVersionOfAppIsVisible`    | `() → Promise<this>` | Asserts app version element is visible                                                                       |
-| `checkVersionOfAppIsNotVisible` | `() → Promise<this>` | Asserts app version element is not visible                                                                   |
-| `checkLogoImageVisible`         | `() → Promise<this>` | Asserts sidebar logo image is visible                                                                        |
-| `checkLogoExpandedVisible`      | `() → Promise<this>` | Soft-asserts logo title ("Chronos") and subtitle ("Personal Space") are visible with correct text            |
-| `checkLogoCollapsedHidden`      | `() → Promise<this>` | Soft-asserts logo title and subtitle are not visible                                                         |
-| `checkNavExpandedVisible`       | `() → Promise<this>` | Soft-asserts all 5 nav icons and labels are visible (Dashboard, Open Tasks, Closed Tasks, Calendar, Archive) |
-| `checkNavCollapsedVisible`      | `() → Promise<this>` | Soft-asserts all 5 nav icons visible but labels not visible                                                  |
+| Method                          | Signature            | Description                                                                                         |
+| ------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------- |
+| `checkMenuExpandedOnLoad`       | `() → Promise<this>` | Asserts menu is in expanded state on load: open button visible, logo and nav labels visible         |
+| `checkVisibilityForOpenMenu`    | `() → Promise<this>` | Asserts open-menu button is visible                                                                 |
+| `checkVisibilityForCloseMenu`   | `() → Promise<this>` | Asserts open-menu button is not visible                                                             |
+| `checkOpenAndCloseSiteMenu`     | `() → Promise<this>` | Full open/close cycle: checks expanded state, collapses, checks collapsed state, expands again      |
+| `checkVersionTitle`             | `() → Promise<this>` | Soft-asserts "App version" label is visible with correct text                                       |
+| `checkVersionOfAppIsVisible`    | `() → Promise<this>` | Asserts app version element is visible                                                              |
+| `checkVersionOfAppIsNotVisible` | `() → Promise<this>` | Asserts app version element is not visible                                                          |
+| `checkLogoImageVisible`         | `() → Promise<this>` | Asserts sidebar logo image is visible                                                               |
+| `checkLogoExpandedVisible`      | `() → Promise<this>` | Soft-asserts logo title ("Chronos") and subtitle ("Personal Space") are visible with correct text   |
+| `checkLogoCollapsedHidden`      | `() → Promise<this>` | Soft-asserts logo title and subtitle are not visible                                                |
+| `checkNavExpandedVisible`       | `() → Promise<this>` | Soft-asserts all 4 nav icons and labels are visible (Dashboard, Open Tasks, Closed Tasks, Calendar) |
+| `checkNavCollapsedVisible`      | `() → Promise<this>` | Soft-asserts all 4 nav icons visible but labels not visible                                         |
 
 ---
 

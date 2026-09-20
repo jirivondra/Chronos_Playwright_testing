@@ -16,19 +16,16 @@ export class SiteBarMenu extends AppBar {
   private readonly navOpenTasksLink: Locator
   private readonly navClosedTasksLink: Locator
   private readonly navCalendarLink: Locator
-  private readonly navArchiveLink: Locator
 
   private readonly navDashboardLabel: Locator
   private readonly navOpenTasksLabel: Locator
   private readonly navClosedTasksLabel: Locator
   private readonly navCalendarLabel: Locator
-  private readonly navArchiveLabel: Locator
 
   private readonly navDashboardIcon: Locator
   private readonly navOpenTasksIcon: Locator
   private readonly navClosedTasksIcon: Locator
   private readonly navCalendarIcon: Locator
-  private readonly navArchiveIcon: Locator
 
   constructor(page: Page, path: string) {
     super(page, path)
@@ -46,19 +43,16 @@ export class SiteBarMenu extends AppBar {
     this.navOpenTasksLink = page.getByRole('link', { name: 'Open Tasks' })
     this.navClosedTasksLink = page.getByRole('link', { name: 'Closed Tasks' })
     this.navCalendarLink = page.getByRole('link', { name: 'Calendar' })
-    this.navArchiveLink = page.getByRole('link', { name: 'Archive' })
 
     this.navDashboardLabel = this.navDashboardLink.getByText('Dashboard', { exact: true })
     this.navOpenTasksLabel = this.navOpenTasksLink.getByText('Open Tasks', { exact: true })
     this.navClosedTasksLabel = this.navClosedTasksLink.getByText('Closed Tasks', { exact: true })
     this.navCalendarLabel = this.navCalendarLink.getByText('Calendar', { exact: true })
-    this.navArchiveLabel = this.navArchiveLink.getByText('Archive', { exact: true })
 
     this.navDashboardIcon = this.navDashboardLink.locator('span.material-symbols-outlined')
     this.navOpenTasksIcon = this.navOpenTasksLink.locator('span.material-symbols-outlined')
     this.navClosedTasksIcon = this.navClosedTasksLink.locator('span.material-symbols-outlined')
     this.navCalendarIcon = this.navCalendarLink.locator('span.material-symbols-outlined')
-    this.navArchiveIcon = this.navArchiveLink.locator('span.material-symbols-outlined')
   }
 
   async checkMenuExpandedOnLoad(): Promise<this> {
@@ -135,8 +129,6 @@ export class SiteBarMenu extends AppBar {
     await expect.soft(this.navClosedTasksLabel).toBeVisible()
     await expect.soft(this.navCalendarIcon).toBeVisible()
     await expect.soft(this.navCalendarLabel).toBeVisible()
-    await expect.soft(this.navArchiveIcon).toBeVisible()
-    await expect.soft(this.navArchiveLabel).toBeVisible()
     return this
   }
 
@@ -149,8 +141,6 @@ export class SiteBarMenu extends AppBar {
     await expect.soft(this.navClosedTasksLabel).not.toBeVisible()
     await expect.soft(this.navCalendarIcon).toBeVisible()
     await expect.soft(this.navCalendarLabel).not.toBeVisible()
-    await expect.soft(this.navArchiveIcon).toBeVisible()
-    await expect.soft(this.navArchiveLabel).not.toBeVisible()
     return this
   }
 }
