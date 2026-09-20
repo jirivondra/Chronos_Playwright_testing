@@ -24,17 +24,6 @@ tasks:
       - task: run-test
       - task: test-report
 
-  update-snapshots:
-    desc: 'Regenerate visual snapshots via Docker (Linux-consistent, matches CI). Requires Docker running and the app up on localhost:3000/8000. Usage: task update-snapshots -- tests/regression/login_page.spec.ts'
-    cmd: >-
-      docker run --rm --platform linux/amd64
-      --add-host=host.docker.internal:host-gateway
-      -v "$PWD":/work -v pw_node_modules:/work/node_modules -w /work
-      -e BASE_URL=http://host.docker.internal:3000
-      -e API_BASE_URL=http://host.docker.internal:8000
-      mcr.microsoft.com/playwright:v1.59.1-noble
-      bash -c "npm ci --silent && npx playwright install chrome && npx playwright test {{.CLI_ARGS}} --update-snapshots"
-
   # --- Code quality ---
   lint:
     desc: Check code with ESLint

@@ -25,15 +25,13 @@ npx playwright install
 
 ## Visual Testing
 
-Visual regression tests live alongside the functional tests in `tests/regression/*.spec.ts`, under their own `Visual Tests For [Page]` describe block (e.g. `login_page.spec.ts`). They compare a full-page screenshot against a committed baseline PNG per browser, stored in `tests/regression/*.spec.ts-snapshots/`. These run in CI (see CI/CD below), so their baselines are generated on Linux to match the CI runner exactly.
+Visual regression tests live alongside the functional tests in `tests/regression/*.spec.ts`, under their own `Visual Tests For [Page]` describe block (e.g. `login_page.spec.ts`). They compare a full-page screenshot against a committed baseline PNG per browser, stored in `tests/regression/*.spec.ts-snapshots/`. They are **not** part of the regular CI pipeline (see CI/CD below) — deliberately local/manual-only, since baselines are OS-sensitive and CI only runs Linux.
 
-**Requires [Docker](https://www.docker.com/) running locally.** Baselines are named `-linux.png` regardless of your host OS — updating them always runs Playwright inside Docker's official image, never bare `npx playwright test` on the host, otherwise you'd produce a `-darwin.png`/`-win32.png` file CI can never match against. With the app running locally (`localhost:3000`/`localhost:8000`) and Docker running, regenerate the baseline for a spec file with:
+Baselines are named `-linux.png` regardless of your host OS, so they're always generated to match a Linux environment — never with a bare `npx playwright test` on a non-Linux host, which would produce an unusable `-darwin.png`/`-win32.png` file instead.
 
-```bash
-task update-snapshots -- tests/regression/login_page.spec.ts
-```
+To (re)generate them, run the **"Update Playwright Snapshots"** workflow from the repo's Actions tab (`workflow_dispatch` — no local setup needed). It starts the app, runs `--update-snapshots` on a real Linux runner, and opens a PR with whatever changed. Review the PR's image diffs there to confirm the change is intentional before merging — a missing baseline isn't a silent gap, it makes the test fail loudly for anyone else ("A snapshot doesn't exist"), so this is the one required step whenever a visual test is new or its baseline needs updating.
 
-Review the diff first (`npm run test_report`) to confirm the change is intentional before updating. Commit the updated PNG(s) together with the change that caused them — a missing baseline isn't a silent gap, it makes the test fail loudly for anyone else ("A snapshot doesn't exist"), but only once you actually run the suite. Since the `*.spec.ts-snapshots/` folders aren't tracked until you `git add` them, double-check they're staged before pushing a new or updated visual test.
+One-time setup: this repo's Settings → Actions → General → "Read and write permissions" + "Allow GitHub Actions to create and approve pull requests" must be enabled for the workflow to open the PR.
 
 ## Linting & Formatting
 
@@ -82,8 +80,12 @@ Tests are configured to run on:
 
 ## CI/CD
 
-On CI environments, tests run with:
+`.github/workflows/playwright.yml` runs on every push/PR to `main`, as three jobs chained with `needs:` so a failure stops the rest of the pipeline early:
 
-- 1 worker (sequentially)
-- 2 retries on failure
-- `test.only` forbidden
+1. **`prettier-and-lint`** — `npm run format-check` + `npm run lint`.
+2. **`api-tests`** (only if 1 passes) — checks out [Chronost_App](https://github.com/jirivondra/Chronost_App) and [mocha_api_soap_testing](https://github.com/jirivondra/mocha_api_soap_testing), starts the backend, and runs the Mocha REST regression suite (status-code checks across all `/todos` endpoints).
+3. **`smoke`** (only if 2 passes) — checks out `Chronost_App`, starts the full app, and runs `tests/smoke` (the end-to-end "Full Application Flow" test).
+
+Playwright's own CI-awareness (`playwright.config.ts`): `forbidOnly` (rejects a committed `test.only`) and 2 retries are enabled whenever `process.env.CI` is set.
+
+Visual regression tests are excluded from all of the above — see [Visual Testing](#visual-testing).
