@@ -40,7 +40,7 @@ export class DashboardPage extends OpenTask {
     this.pulsePercentage = page.locator('#pulse-pct')
     this.pulseCount = page.locator('#pulse-count')
     this.pulseCountSuffix = dashboardPageData.pulseCountSuffix
-    this.upcomingHeading = page.getByRole('heading', { name: 'Upcoming' })
+    this.upcomingHeading = page.getByRole('heading', { name: 'Upcoming', exact: true })
     this.upcomingList = page.locator('#upcoming-list')
     this.upcomingEmptyMessage = this.upcomingList.getByText(dashboardPageData.upcomingEmptyMessage)
     this.upcomingLabelToday = dashboardPageData.upcomingLabelToday
@@ -145,7 +145,7 @@ export class DashboardPage extends OpenTask {
   }
 
   async checkPulseStats(): Promise<this> {
-    await this.visit()
+    await this.goto()
     const response = await this.get(this.dashboardTodosEndpoint)
     const todos = (await response.json()) as { completed: boolean }[]
     const total = todos.length
@@ -184,7 +184,7 @@ export class DashboardPage extends OpenTask {
 
   async createTaskWithDueDate(title: string, dueDate: string, completed = false): Promise<this> {
     await this.post(this.dashboardTodosEndpoint, { title, due_date: dueDate, completed })
-    await this.visit()
+    await this.goto()
     return this
   }
 
