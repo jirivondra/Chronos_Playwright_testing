@@ -3,7 +3,7 @@ import { SiteBarMenu } from './site_bar_menu'
 import { dashboardPageData } from '../../test-data/dashboard_page_data'
 
 export class OpenTask extends SiteBarMenu {
-  private readonly openList: Locator
+  protected readonly openList: Locator
   protected readonly taskGroup: Locator
   readonly openListEmptyMessage: Locator
   private readonly openListEmptyMessageText: string
@@ -78,6 +78,15 @@ export class OpenTask extends SiteBarMenu {
   async checkTaskHasEditAndDeleteButtons(taskName: string): Promise<this> {
     await expect.soft(this.taskEditButton(taskName)).toBeVisible()
     await expect.soft(this.taskDeleteButton(taskName)).toBeVisible()
+    return this
+  }
+
+  async checkAllTasksInOpenSectionMarkedIncomplete(): Promise<this> {
+    const tasks = await this.openList.locator(this.taskGroup).all()
+    for (const task of tasks) {
+      await expect.soft(task.getByRole('checkbox')).not.toBeChecked()
+      await expect.soft(task.getByRole('heading')).not.toHaveClass(/line-through/)
+    }
     return this
   }
 }

@@ -142,16 +142,17 @@ Adds open task list, expand button, and API-based task utilities.
 
 **Methods:**
 
-| Method                             | Signature                            | Description                                                       |
-| ---------------------------------- | ------------------------------------ | ----------------------------------------------------------------- |
-| `clickExpandButton`                | `() → Promise<this>`                 | Clicks the expand open list button                                |
-| `countOpenTasks`                   | `() → Promise<number>`               | Fetches `/todos` via API and returns count of non-completed tasks |
-| `checkExpandButtonVisible`         | `() → Promise<this>`                 | Asserts expand button is visible                                  |
-| `checkExpandButtonNotVisible`      | `() → Promise<this>`                 | Asserts expand button is not visible                              |
-| `checkEmptyOpenSection`            | `() → Promise<this>`                 | Soft-asserts empty message is visible with correct text           |
-| `deleteTaskByTitle`                | `(title: string) → Promise<void>`    | Deletes all tasks with matching title via API — used for teardown |
-| `checkTaskInOpenSection`           | `(taskName: string) → Promise<this>` | Asserts task heading is visible in open list                      |
-| `checkTaskHasEditAndDeleteButtons` | `(taskName: string) → Promise<this>` | Soft-asserts edit and delete buttons are visible for the task     |
+| Method                                       | Signature                            | Description                                                                                             |
+| -------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `clickExpandButton`                          | `() → Promise<this>`                 | Clicks the expand open list button                                                                      |
+| `countOpenTasks`                             | `() → Promise<number>`               | Fetches `/todos` via API and returns count of non-completed tasks                                       |
+| `checkExpandButtonVisible`                   | `() → Promise<this>`                 | Asserts expand button is visible                                                                        |
+| `checkExpandButtonNotVisible`                | `() → Promise<this>`                 | Asserts expand button is not visible                                                                    |
+| `checkEmptyOpenSection`                      | `() → Promise<this>`                 | Soft-asserts empty message is visible with correct text                                                 |
+| `deleteTaskByTitle`                          | `(title: string) → Promise<void>`    | Deletes all tasks with matching title via API — used for teardown                                       |
+| `checkTaskInOpenSection`                     | `(taskName: string) → Promise<this>` | Asserts task heading is visible in open list                                                            |
+| `checkTaskHasEditAndDeleteButtons`           | `(taskName: string) → Promise<this>` | Soft-asserts edit and delete buttons are visible for the task                                           |
+| `checkAllTasksInOpenSectionMarkedIncomplete` | `() → Promise<this>`                 | Soft-asserts every visible task in the open list has an unchecked checkbox and non-struck-through title |
 
 ---
 
@@ -163,19 +164,50 @@ Adds open task list, expand button, and API-based task utilities.
 
 **Public locators:**
 
-| Locator         | Type      | Description                         |
-| --------------- | --------- | ----------------------------------- |
-| `newTaskButton` | `Locator` | "New Task" button (`#new-task-btn`) |
+| Locator           | Type      | Description                         |
+| ----------------- | --------- | ----------------------------------- |
+| `newTaskButton`   | `Locator` | "New Task" button (`#new-task-btn`) |
+| `pulseHeading`    | `Locator` | "Today's Pulse" heading             |
+| `upcomingHeading` | `Locator` | "Upcoming" heading                  |
 
 **Own methods:**
 
-| Method                          | Signature                            | Description                                                          |
-| ------------------------------- | ------------------------------------ | -------------------------------------------------------------------- |
-| `checkNewTaskButtonIsVisible`   | `() → Promise<this>`                 | Asserts new task button is visible                                   |
-| `toggleTask`                    | `(taskName: string) → Promise<this>` | Clicks the task checkbox and waits for `/todos` API response         |
-| `checkTaskInFinishSection`      | `(taskName: string) → Promise<this>` | Asserts task heading is visible in done list                         |
-| `clickButtonNewTask`            | `() → Promise<NewTaskPage>`          | Clicks new task button — returns `NewTaskPage` (chain ends)          |
-| `checkNewTaskNavigationRequest` | `() → Promise<this>`                 | Asserts clicking new task button triggers GET request to `edit-task` |
+| Method                                       | Signature                                                               | Description                                                                                      |
+| -------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `checkNewTaskButtonIsVisible`                | `() → Promise<this>`                                                    | Asserts new task button is visible                                                               |
+| `toggleTask`                                 | `(taskName: string) → Promise<this>`                                    | Clicks the task checkbox and waits for `/todos` API response                                     |
+| `checkTaskInFinishSection`                   | `(taskName: string) → Promise<this>`                                    | Asserts task heading is visible in done list                                                     |
+| `checkTaskMarkedComplete`                    | `(taskName: string) → Promise<this>`                                    | Soft-asserts the task's checkbox is checked and its title is struck through                      |
+| `checkTaskMarkedIncomplete`                  | `(taskName: string) → Promise<this>`                                    | Soft-asserts the task's checkbox is unchecked and its title is not struck through                |
+| `checkAllTasksInFinishSectionMarkedComplete` | `() → Promise<this>`                                                    | Soft-asserts every visible task in the done list has a checked checkbox and struck-through title |
+| `clickButtonNewTask`                         | `() → Promise<NewTaskPage>`                                             | Clicks new task button — returns `NewTaskPage` (chain ends)                                      |
+| `checkNewTaskNavigationRequest`              | `() → Promise<this>`                                                    | Asserts clicking new task button triggers GET request to `edit-task`                             |
+| `checkPulseTextsVisible`                     | `() → Promise<this>`                                                    | Soft-asserts "Today's Pulse" heading and subtitle are visible                                    |
+| `checkPulseStats`                            | `() → Promise<this>`                                                    | Re-visits the page, fetches `/todos`, and soft-asserts the completion % and count text           |
+| `checkUpcomingHeadingVisible`                | `() → Promise<this>`                                                    | Asserts "Upcoming" heading is visible                                                            |
+| `countUpcomingTasks`                         | `() → Promise<number>`                                                  | Fetches `/todos` via API and returns count of non-completed tasks due within 7 days              |
+| `checkUpcomingEmpty`                         | `() → Promise<this>`                                                    | Soft-asserts the "Nothing due in the next 7 days." message is visible with correct text          |
+| `checkUpcomingEmptyMessageNotShown`          | `() → Promise<this>`                                                    | Asserts the empty message is not visible                                                         |
+| `createTaskWithDueDate`                      | `(title: string, dueDate: string, completed?: boolean) → Promise<this>` | Creates a task via API with the given due date, then re-visits the page to reflect it            |
+| `checkTaskDueToday`                          | `(taskName: string) → Promise<this>`                                    | Soft-asserts a task row is visible in Upcoming labeled "Today"                                   |
+| `checkTaskDueTomorrow`                       | `(taskName: string) → Promise<this>`                                    | Soft-asserts a task row is visible in Upcoming labeled "Tomorrow"                                |
+| `checkTaskNotInUpcoming`                     | `(taskName: string) → Promise<this>`                                    | Asserts a task row is not present in Upcoming                                                    |
+| `checkUpcomingTaskNavigation`                | `(taskName: string) → Promise<this>`                                    | Clicks a task row in Upcoming and waits for navigation to `task-detail.html`                     |
+| `checkCalendarMonthLabel`                    | `() → Promise<this>`                                                    | Asserts the calendar month label matches the current month and year                              |
+| `checkCalendarDaysForCurrentMonth`           | `() → Promise<this>`                                                    | Soft-asserts the calendar shows the correct number of days for the current month, starting at 1  |
+| `checkCalendarTodayHighlighted`              | `() → Promise<this>`                                                    | Asserts exactly one calendar day cell is highlighted and it matches today's date                 |
+| `enterCalculatorNumber`                      | `(value: string) → Promise<this>`                                       | Clicks the calculator's digit buttons to type the given number                                   |
+| `selectCalculatorAdd`                        | `() → Promise<this>`                                                    | Clicks the "+" operator button                                                                   |
+| `selectCalculatorSubtract`                   | `() → Promise<this>`                                                    | Clicks the "−" operator button                                                                   |
+| `selectCalculatorMultiply`                   | `() → Promise<this>`                                                    | Clicks the "×" operator button                                                                   |
+| `selectCalculatorDivide`                     | `() → Promise<this>`                                                    | Clicks the "÷" operator button                                                                   |
+| `clickCalculate`                             | `() → Promise<this>`                                                    | Clicks the calculator's "=" button                                                               |
+| `clickCalculatorClear`                       | `() → Promise<this>`                                                    | Clicks the calculator's "C" button                                                               |
+| `clickCalculatorBackspace`                   | `() → Promise<this>`                                                    | Clicks the calculator's backspace button                                                         |
+| `checkCalculatorDisplay`                     | `(expected: string) → Promise<this>`                                    | Asserts the calculator display shows the given text                                              |
+| `checkCalculatorHistory`                     | `(expected: string) → Promise<this>`                                    | Asserts the calculator history line shows the given text                                         |
+| `checkCalculatorErrorMessage`                | `(expected: string) → Promise<this>`                                    | Soft-asserts the calculator error banner is visible with the given message                       |
+| `checkCalculatorErrorHidden`                 | `() → Promise<this>`                                                    | Asserts the calculator error banner is not visible                                               |
 
 ---
 
@@ -262,13 +294,16 @@ Adds open task list, expand button, and API-based task utilities.
 
 ## Test data
 
-| File                     | Exports              | Contents                                                                |
-| ------------------------ | -------------------- | ----------------------------------------------------------------------- |
-| `login_page_data.ts`     | `loginPageData`      | URLs, h1, h2 text                                                       |
-| `login_page_data.ts`     | `loginCredentials`   | `validUser`, `invalidUser` (username/password)                          |
-| `login_page_data.ts`     | `negativeLoginCases` | Array of `LoginTestCase` for data-driven negative login tests           |
-| `dashboard_page_data.ts` | `dashboardPageData`  | `emptyListCount`, `taskPreviewLimit`, `emptyMessage`, `urlNewTaskPage`  |
-| `general.ts`             | `contactMeInfo`      | Footer contact `{ label, href }` entries: `github`, `email`, `linkedIn` |
+| File                     | Exports                     | Contents                                                                                                                                                                                                                                         |
+| ------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `login_page_data.ts`     | `loginPageData`             | URLs, h1, h2 text                                                                                                                                                                                                                                |
+| `login_page_data.ts`     | `loginCredentials`          | `validUser`, `invalidUser` (username/password)                                                                                                                                                                                                   |
+| `login_page_data.ts`     | `negativeLoginCases`        | Array of `LoginTestCase` for data-driven negative login tests                                                                                                                                                                                    |
+| `dashboard_page_data.ts` | `dashboardPageData`         | `emptyListCount`, `taskPreviewLimit`, `emptyMessage`, `urlNewTaskPage`, `upcomingEmptyMessage`, `pulseSubtitle`, `pulseCountSuffix`, `upcomingLabelToday`, `upcomingLabelTomorrow`, `calculatorDivisionByZeroFault`, `calculatorOperatorSymbols` |
+| `dashboard_page_data.ts` | `calculatorTestData`        | Input/expected-result pairs for calculator atomic and E2E tests                                                                                                                                                                                  |
+| `dashboard_page_data.ts` | `generateUpcomingDueDates`  | Factory returning today/tomorrow/outsideWindow/overdue due-date strings for Upcoming widget tests                                                                                                                                                |
+| `dashboard_page_data.ts` | `generateUpcomingTaskTitle` | Factory returning a unique task title for Upcoming widget test teardown                                                                                                                                                                          |
+| `general.ts`             | `contactMeInfo`             | Footer contact `{ label, href }` entries: `github`, `email`, `linkedIn`                                                                                                                                                                          |
 
 ## Types
 
