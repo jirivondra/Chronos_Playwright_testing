@@ -10,13 +10,13 @@ export type NoAuthFixtures = {
 export const noAuthFixtures = base.extend<NoAuthFixtures>({
   unAuthDashboardPage: async ({ page }, use) => {
     const dashboardPage = new DashboardPage(page)
-    await dashboardPage.visit()
+    await dashboardPage.goto()
     await use(dashboardPage)
     await dashboardPage.clearCache()
   },
   unAuthNewTaskPage: async ({ page }, use) => {
     const newTaskPage = new NewTaskPage(page)
-    await newTaskPage.visit()
+    await newTaskPage.goto()
     await use(newTaskPage)
     await newTaskPage.clearCache()
   },

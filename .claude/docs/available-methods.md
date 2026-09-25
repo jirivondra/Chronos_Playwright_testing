@@ -38,7 +38,7 @@ Adds browser `page` instance and navigation. No assertion or interaction methods
 
 | Method           | Signature                           | Description                                                 |
 | ---------------- | ----------------------------------- | ----------------------------------------------------------- |
-| `visit`          | `(params?: string) → Promise<this>` | Navigates to the page's path (optionally with query params) |
+| `goto`           | `(params?: string) → Promise<this>` | Navigates to the page's path (optionally with query params) |
 | `clearCache`     | `() → Promise<this>`                | Clears cookies, localStorage, sessionStorage                |
 | `scrollToBottom` | `() → Promise<this>`                | Scrolls to bottom of page                                   |
 

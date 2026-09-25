@@ -9,7 +9,7 @@ export class BasePage extends ApiHelper {
     this.page = page
   }
 
-  async visit(params = ''): Promise<this> {
+  async goto(params = ''): Promise<this> {
     await this.page.goto(this.path + params)
     return this
   }
