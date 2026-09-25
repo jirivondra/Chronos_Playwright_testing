@@ -73,7 +73,7 @@ async seedUser(payload: object) {
 // test — calls the page object, does not know the endpoint
 test('display user profile', async ({ userPage }) => {
   await userPage.seedUser({ name: 'Alice' })
-  await userPage.visit()
+  await userPage.goto()
   await userPage.checkUserName('Alice')
 })
 ```

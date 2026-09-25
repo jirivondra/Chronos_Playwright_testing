@@ -46,7 +46,7 @@ ApiHelper → BasePage → Header → Footer → ToTopButton → AppBar → Site
 ```
 
 - **ApiHelper** (`support/page-objects/common/api_helper.ts`) — HTTP client (no Playwright dependency). Holds `path`, `baseApiUrl`, auth headers, and `get/post/put/delete/apiRequest` methods. All page objects can make API calls.
-- **BasePage** — adds `Page` instance. Provides `visit()`, `clearCache()`, `scrollToBottom()`. No assertion or interaction methods.
+- **BasePage** — adds `Page` instance. Provides `goto()`, `clearCache()`, `scrollToBottom()`. No assertion or interaction methods.
 - **Header** — first class with assertion methods. Adds public `h1`/`h2` locators, `checkUrl()`, `checkH1()`, `checkH2()`.
 - **Footer** — adds footer heading and contact icon locators and assertions.
 - **ToTopButton** — adds back-to-top button locators and assertions.
@@ -57,7 +57,7 @@ ApiHelper → BasePage → Header → Footer → ToTopButton → AppBar → Site
 
 ### Fixtures
 
-`support/fixture/` extends Playwright's `test` with page object fixtures. Each fixture instantiates the page object, calls `visit()` before the test, and `clearCache()` after. Tests import `test` from `support/fixture` (not from `@playwright/test` directly).
+`support/fixture/` extends Playwright's `test` with page object fixtures. Each fixture instantiates the page object, calls `goto()` before the test, and `clearCache()` after. Tests import `test` from `support/fixture` (not from `@playwright/test` directly).
 
 ### Test data
 
