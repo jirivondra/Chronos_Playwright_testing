@@ -21,6 +21,7 @@ export const dashboardPageData = {
 
 export const calculatorTestData = {
   addition: { a: '5', b: '3', expected: '8' },
+  subtraction: { a: '9', b: '4', expected: '5' },
   integerDivision: { a: '10', b: '2', expected: '5' },
   decimalDivision: { a: '7', b: '2', expected: '3.5' },
   chainMultiplier: '2',

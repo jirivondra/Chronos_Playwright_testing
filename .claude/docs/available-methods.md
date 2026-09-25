@@ -294,13 +294,16 @@ Adds open task list, expand button, and API-based task utilities.
 
 ## Test data
 
-| File                     | Exports              | Contents                                                                |
-| ------------------------ | -------------------- | ----------------------------------------------------------------------- |
-| `login_page_data.ts`     | `loginPageData`      | URLs, h1, h2 text                                                       |
-| `login_page_data.ts`     | `loginCredentials`   | `validUser`, `invalidUser` (username/password)                          |
-| `login_page_data.ts`     | `negativeLoginCases` | Array of `LoginTestCase` for data-driven negative login tests           |
-| `dashboard_page_data.ts` | `dashboardPageData`  | `emptyListCount`, `taskPreviewLimit`, `emptyMessage`, `urlNewTaskPage`  |
-| `general.ts`             | `contactMeInfo`      | Footer contact `{ label, href }` entries: `github`, `email`, `linkedIn` |
+| File                     | Exports                     | Contents                                                                                                                                                                                                                                         |
+| ------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `login_page_data.ts`     | `loginPageData`             | URLs, h1, h2 text                                                                                                                                                                                                                                |
+| `login_page_data.ts`     | `loginCredentials`          | `validUser`, `invalidUser` (username/password)                                                                                                                                                                                                   |
+| `login_page_data.ts`     | `negativeLoginCases`        | Array of `LoginTestCase` for data-driven negative login tests                                                                                                                                                                                    |
+| `dashboard_page_data.ts` | `dashboardPageData`         | `emptyListCount`, `taskPreviewLimit`, `emptyMessage`, `urlNewTaskPage`, `upcomingEmptyMessage`, `pulseSubtitle`, `pulseCountSuffix`, `upcomingLabelToday`, `upcomingLabelTomorrow`, `calculatorDivisionByZeroFault`, `calculatorOperatorSymbols` |
+| `dashboard_page_data.ts` | `calculatorTestData`        | Input/expected-result pairs for calculator atomic and E2E tests                                                                                                                                                                                  |
+| `dashboard_page_data.ts` | `generateUpcomingDueDates`  | Factory returning today/tomorrow/outsideWindow/overdue due-date strings for Upcoming widget tests                                                                                                                                                |
+| `dashboard_page_data.ts` | `generateUpcomingTaskTitle` | Factory returning a unique task title for Upcoming widget test teardown                                                                                                                                                                          |
+| `general.ts`             | `contactMeInfo`             | Footer contact `{ label, href }` entries: `github`, `email`, `linkedIn`                                                                                                                                                                          |
 
 ## Types
 

@@ -76,3 +76,4 @@ ApiHelper → BasePage → Header → Footer → ToTopButton → AppBar → Site
 @.claude/docs/data-driven-tests.md
 @.claude/docs/conditional-skip.md
 @.claude/docs/multiple-elements.md
+@.claude/docs/serial-execution.md

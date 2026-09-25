@@ -104,91 +104,97 @@ test.describe('Test Dashboard Page', () => {
     })
   })
 
-  test.describe("Atomic Tests For Today's Pulse", () => {
-    test('Check Pulse Texts Visible', async ({ dashboardPage }) => {
-      await dashboardPage.checkPulseTextsVisible()
+  // Serial: Pulse reads total/done counts and Upcoming reads the due-date window across ALL
+  // tasks in the shared backend, while "Upcoming Task Behavior" creates/deletes tasks via API.
+  // Running these in parallel workers races the API mutation against the DOM snapshot the
+  // other blocks assert against, producing flaky counts/messages.
+  test.describe.serial('Serial Tests For Pulse And Upcoming Widgets', () => {
+    test.describe("Atomic Tests For Today's Pulse", () => {
+      test('Check Pulse Texts Visible', async ({ dashboardPage }) => {
+        await dashboardPage.checkPulseTextsVisible()
+      })
+
+      test('Check Pulse Percentage Matches Task Completion', async ({ dashboardPage }) => {
+        await dashboardPage.checkPulseStats()
+      })
     })
 
-    test('Check Pulse Percentage Matches Task Completion', async ({ dashboardPage }) => {
-      await dashboardPage.checkPulseStats()
-    })
-  })
+    test.describe('Atomic Tests For Upcoming', () => {
+      let upcomingCount: number
 
-  test.describe('Atomic Tests For Upcoming', () => {
-    let upcomingCount: number
+      test.beforeEach(async ({ dashboardPage }) => {
+        upcomingCount = await dashboardPage.countUpcomingTasks()
+      })
 
-    test.beforeEach(async ({ dashboardPage }) => {
-      upcomingCount = await dashboardPage.countUpcomingTasks()
-    })
+      test('Check Upcoming Heading Visible', async ({ dashboardPage }) => {
+        await dashboardPage.checkUpcomingHeadingVisible()
+      })
 
-    test('Check Upcoming Heading Visible', async ({ dashboardPage }) => {
-      await dashboardPage.checkUpcomingHeadingVisible()
-    })
+      test('Check Upcoming Empty Message', async ({ dashboardPage }) => {
+        test.skip(upcomingCount > dashboardPageData.emptyListCount)
+        await dashboardPage.checkUpcomingEmpty()
+      })
 
-    test('Check Upcoming Empty Message', async ({ dashboardPage }) => {
-      test.skip(upcomingCount > dashboardPageData.emptyListCount)
-      await dashboardPage.checkUpcomingEmpty()
-    })
-
-    test('Check Upcoming Empty Message Not Shown When Tasks Exist', async ({ dashboardPage }) => {
-      test.skip(upcomingCount <= dashboardPageData.emptyListCount)
-      await dashboardPage.checkUpcomingEmptyMessageNotShown()
-    })
-  })
-
-  test.describe('Atomic Tests For Upcoming Task Behavior', () => {
-    let taskName: string
-
-    test.afterEach(async ({ dashboardPage }) => {
-      await dashboardPage.deleteTaskByTitle(taskName)
+      test('Check Upcoming Empty Message Not Shown When Tasks Exist', async ({ dashboardPage }) => {
+        test.skip(upcomingCount <= dashboardPageData.emptyListCount)
+        await dashboardPage.checkUpcomingEmptyMessageNotShown()
+      })
     })
 
-    test('Task Due Today Appears With Today Label', async ({ dashboardPage }) => {
-      taskName = generateUpcomingTaskTitle()
-      const dates = generateUpcomingDueDates()
-      await dashboardPage
-        .createTaskWithDueDate(taskName, dates.today)
-        .then((d) => d.checkTaskDueToday(taskName))
-    })
+    test.describe('Atomic Tests For Upcoming Task Behavior', () => {
+      let taskName: string
 
-    test('Task Due Tomorrow Appears With Tomorrow Label', async ({ dashboardPage }) => {
-      taskName = generateUpcomingTaskTitle()
-      const dates = generateUpcomingDueDates()
-      await dashboardPage
-        .createTaskWithDueDate(taskName, dates.tomorrow)
-        .then((d) => d.checkTaskDueTomorrow(taskName))
-    })
+      test.afterEach(async ({ dashboardPage }) => {
+        await dashboardPage.deleteTaskByTitle(taskName)
+      })
 
-    test('Task Outside Seven Day Window Is Not Shown', async ({ dashboardPage }) => {
-      taskName = generateUpcomingTaskTitle()
-      const dates = generateUpcomingDueDates()
-      await dashboardPage
-        .createTaskWithDueDate(taskName, dates.outsideWindow)
-        .then((d) => d.checkTaskNotInUpcoming(taskName))
-    })
+      test('Task Due Today Appears With Today Label', async ({ dashboardPage }) => {
+        taskName = generateUpcomingTaskTitle()
+        const dates = generateUpcomingDueDates()
+        await dashboardPage
+          .createTaskWithDueDate(taskName, dates.today)
+          .then((d) => d.checkTaskDueToday(taskName))
+      })
 
-    test('Overdue Task Is Not Shown In Upcoming', async ({ dashboardPage }) => {
-      taskName = generateUpcomingTaskTitle()
-      const dates = generateUpcomingDueDates()
-      await dashboardPage
-        .createTaskWithDueDate(taskName, dates.overdue)
-        .then((d) => d.checkTaskNotInUpcoming(taskName))
-    })
+      test('Task Due Tomorrow Appears With Tomorrow Label', async ({ dashboardPage }) => {
+        taskName = generateUpcomingTaskTitle()
+        const dates = generateUpcomingDueDates()
+        await dashboardPage
+          .createTaskWithDueDate(taskName, dates.tomorrow)
+          .then((d) => d.checkTaskDueTomorrow(taskName))
+      })
 
-    test('Completed Task With Due Date Is Not Shown In Upcoming', async ({ dashboardPage }) => {
-      taskName = generateUpcomingTaskTitle()
-      const dates = generateUpcomingDueDates()
-      await dashboardPage
-        .createTaskWithDueDate(taskName, dates.today, true)
-        .then((d) => d.checkTaskNotInUpcoming(taskName))
-    })
+      test('Task Outside Seven Day Window Is Not Shown', async ({ dashboardPage }) => {
+        taskName = generateUpcomingTaskTitle()
+        const dates = generateUpcomingDueDates()
+        await dashboardPage
+          .createTaskWithDueDate(taskName, dates.outsideWindow)
+          .then((d) => d.checkTaskNotInUpcoming(taskName))
+      })
 
-    test('Clicking Upcoming Task Navigates To Task Detail', async ({ dashboardPage }) => {
-      taskName = generateUpcomingTaskTitle()
-      const dates = generateUpcomingDueDates()
-      await dashboardPage
-        .createTaskWithDueDate(taskName, dates.today)
-        .then((d) => d.checkUpcomingTaskNavigation(taskName))
+      test('Overdue Task Is Not Shown In Upcoming', async ({ dashboardPage }) => {
+        taskName = generateUpcomingTaskTitle()
+        const dates = generateUpcomingDueDates()
+        await dashboardPage
+          .createTaskWithDueDate(taskName, dates.overdue)
+          .then((d) => d.checkTaskNotInUpcoming(taskName))
+      })
+
+      test('Completed Task With Due Date Is Not Shown In Upcoming', async ({ dashboardPage }) => {
+        taskName = generateUpcomingTaskTitle()
+        const dates = generateUpcomingDueDates()
+        await dashboardPage
+          .createTaskWithDueDate(taskName, dates.today, true)
+          .then((d) => d.checkTaskNotInUpcoming(taskName))
+      })
+
+      test('Clicking Upcoming Task Navigates To Task Detail', async ({ dashboardPage }) => {
+        taskName = generateUpcomingTaskTitle()
+        const dates = generateUpcomingDueDates()
+        await dashboardPage
+          .createTaskWithDueDate(taskName, dates.today)
+          .then((d) => d.checkUpcomingTaskNavigation(taskName))
+      })
     })
   })
 
@@ -219,6 +225,21 @@ test.describe('Test Dashboard Page', () => {
         .then((d) => d.checkCalculatorDisplay(expected))
         .then((d) =>
           d.checkCalculatorHistory(`${a} ${dashboardPageData.calculatorOperatorSymbols.Add} ${b} =`)
+        )
+    })
+
+    test('Subtract Two Numbers Shows Result And History', async ({ dashboardPage }) => {
+      const { a, b, expected } = calculatorTestData.subtraction
+      await dashboardPage
+        .enterCalculatorNumber(a)
+        .then((d) => d.selectCalculatorSubtract())
+        .then((d) => d.enterCalculatorNumber(b))
+        .then((d) => d.clickCalculate())
+        .then((d) => d.checkCalculatorDisplay(expected))
+        .then((d) =>
+          d.checkCalculatorHistory(
+            `${a} ${dashboardPageData.calculatorOperatorSymbols.Subtract} ${b} =`
+          )
         )
     })
 
@@ -308,7 +329,10 @@ test.describe('Test Dashboard Page', () => {
       })
 
       await test.step('New digit after a result starts a fresh calculation', async () => {
-        await dashboardPage.enterCalculatorNumber('7').then((d) => d.checkCalculatorDisplay('7'))
+        const digit = calculatorTestData.freshStartDigit
+        await dashboardPage
+          .enterCalculatorNumber(digit)
+          .then((d) => d.checkCalculatorDisplay(digit))
       })
     })
   })
