@@ -75,3 +75,4 @@ ApiHelper → BasePage → Header → Footer → ToTopButton → AppBar → Site
 @.claude/docs/test-data.md
 @.claude/docs/data-driven-tests.md
 @.claude/docs/conditional-skip.md
+@.claude/docs/multiple-elements.md
