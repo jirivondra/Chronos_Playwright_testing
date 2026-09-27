@@ -29,6 +29,9 @@ export class DashboardPage extends OpenTask {
   private readonly calcButton: Locator
   private readonly calcClearButton: Locator
   private readonly calcBackspaceButton: Locator
+  private readonly backendUnreachableScreen: Locator
+  private readonly backendUnreachableHeading: Locator
+  private readonly backendUnreachableRetryButton: Locator
 
   constructor(page: Page) {
     super(page, '/dashboard.html')
@@ -59,6 +62,13 @@ export class DashboardPage extends OpenTask {
     this.calcButton = page.locator('#w-calc-btn')
     this.calcClearButton = page.locator('[data-action="clear"]')
     this.calcBackspaceButton = page.locator('[data-action="backspace"]')
+    this.backendUnreachableScreen = page.locator('#be-down')
+    this.backendUnreachableHeading = this.backendUnreachableScreen.getByRole('heading', {
+      name: "Can't Reach the Server",
+    })
+    this.backendUnreachableRetryButton = this.backendUnreachableScreen.getByRole('button', {
+      name: 'Try Again',
+    })
   }
 
   private taskInFinishSection(taskName: string): Locator {
@@ -87,6 +97,20 @@ export class DashboardPage extends OpenTask {
 
   async checkNewTaskButtonIsVisible(): Promise<this> {
     await expect(this.newTaskButton).toBeVisible()
+    return this
+  }
+
+  async simulateBackendUnreachable(): Promise<this> {
+    await this.page.route(`**${this.dashboardTodosEndpoint}`, (route) =>
+      route.abort('connectionrefused')
+    )
+    return this
+  }
+
+  async checkBackendUnreachableScreen(): Promise<this> {
+    await expect.soft(this.backendUnreachableScreen).toBeVisible()
+    await expect.soft(this.backendUnreachableHeading).toBeVisible()
+    await expect.soft(this.backendUnreachableRetryButton).toBeVisible()
     return this
   }
 
