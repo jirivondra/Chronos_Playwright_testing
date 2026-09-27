@@ -1,7 +1,68 @@
 import { test } from '../../support/fixture'
+import { logoutPageData } from '../../support/test-data/logout_page_data'
+import { loginPageData, loginCredentials } from '../../support/test-data/login_page_data'
 import { themeCases } from '../../support/test-data/visual_testing_data'
 
 test.describe('Test Logout page', () => {
+  test.describe('Atomic Tests For Header', () => {
+    test('Check H1 On Page Logout', async ({ logoutPage }) => {
+      await logoutPage.checkH1(logoutPageData.h1)
+    })
+  })
+
+  test.describe('Atomic Tests For Logout Page', () => {
+    test('Check Return To Login Link Visibility', async ({ logoutPage }) => {
+      await logoutPage.checkReturnToLoginVisible()
+    })
+
+    test('Logout Clears Auth Session', async ({ logoutPage }) => {
+      await logoutPage.simulateLoggedInSession().then((l) => l.checkSessionCleared())
+    })
+
+    test('Click Return To Login Navigates To Login Page', async ({ logoutPage }) => {
+      await logoutPage.clickReturnToLogin().then((l) => l.checkUrl(loginPageData.urlLoginPage))
+    })
+  })
+
+  test.describe('E2E Test For Logout Page', () => {
+    test('ToTop Button Full Flow', async ({ logoutPage }) => {
+      await logoutPage
+        .checkToTopButtonNotVisible()
+        .then((l) => l.scrollToBottom())
+        .then((l) => l.checkToTopButtonVisible())
+        .then((l) => l.clickToTopButton())
+        .then((l) => l.checkToTopButtonNotVisible())
+    })
+
+    test('Login Logout Login Round Trip', async ({ loginPage }) => {
+      const dashboardPage = await test.step('Login with valid credentials', async () => {
+        const dashboardPage = await loginPage.login(
+          loginCredentials.validUser.username,
+          loginCredentials.validUser.password
+        )
+        await dashboardPage.checkUrl(loginPageData.urlDashboard)
+        return dashboardPage
+      })
+
+      await test.step('Logout', async () => {
+        const returnedLogoutPage = await dashboardPage.clickLogout()
+        await returnedLogoutPage.checkUrl(loginPageData.urlLogoutPage)
+      })
+
+      await test.step('Direct dashboard access is blocked after logout', async () => {
+        await dashboardPage.goto().then((d) => d.checkUrl(loginPageData.urlLoginPage))
+      })
+
+      await test.step('Login again succeeds', async () => {
+        const dashboardPageAgain = await loginPage.login(
+          loginCredentials.validUser.username,
+          loginCredentials.validUser.password
+        )
+        await dashboardPageAgain.checkUrl(loginPageData.urlDashboard)
+      })
+    })
+  })
+
   themeCases.forEach(({ description, theme }) => {
     test.describe('Visual Tests For Logout Page', () => {
       test.use({ theme })

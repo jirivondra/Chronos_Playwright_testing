@@ -15,6 +15,20 @@ export class LogoutPage extends ToTopButton {
     return this
   }
 
+  async simulateLoggedInSession(): Promise<this> {
+    await this.page.context().addInitScript(() => {
+      sessionStorage.setItem('auth', 'test-token')
+    })
+    await this.goto()
+    return this
+  }
+
+  async checkSessionCleared(): Promise<this> {
+    const authToken = await this.page.evaluate(() => sessionStorage.getItem('auth'))
+    expect(authToken).toBeNull()
+    return this
+  }
+
   async clickReturnToLogin(): Promise<LoginPage> {
     await this.returnToLoginButton.click()
     return new LoginPage(this.page)

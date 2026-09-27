@@ -278,10 +278,12 @@ Adds open task list, expand button, and API-based task utilities.
 **Path:** `/logout.html`
 **Extends:** `ToTopButton` — has BasePage, Header, Footer, ToTopButton methods. No AppBar/SiteBarMenu.
 
-| Method                      | Signature                 | Description                                        |
-| --------------------------- | ------------------------- | -------------------------------------------------- |
-| `checkReturnToLoginVisible` | `() → Promise<this>`      | Asserts "Return to Login" link is visible          |
-| `clickReturnToLogin`        | `() → Promise<LoginPage>` | Clicks the link — returns `LoginPage` (chain ends) |
+| Method                      | Signature                 | Description                                                             |
+| --------------------------- | ------------------------- | ----------------------------------------------------------------------- |
+| `checkReturnToLoginVisible` | `() → Promise<this>`      | Asserts "Return to Login" link is visible                               |
+| `simulateLoggedInSession`   | `() → Promise<this>`      | Seeds `sessionStorage.auth` before a reload, to verify logout clears it |
+| `checkSessionCleared`       | `() → Promise<this>`      | Asserts `sessionStorage.auth` is `null` after visiting the logout page  |
+| `clickReturnToLogin`        | `() → Promise<LoginPage>` | Clicks the link — returns `LoginPage` (chain ends)                      |
 
 ---
 
@@ -310,6 +312,7 @@ Adds open task list, expand button, and API-based task utilities.
 | `dashboard_page_data.ts` | `generateUpcomingDueDates`  | Factory returning today/tomorrow/outsideWindow/overdue due-date strings for Upcoming widget tests                                                                                                                                                |
 | `dashboard_page_data.ts` | `generateUpcomingTaskTitle` | Factory returning a unique task title for Upcoming widget test teardown                                                                                                                                                                          |
 | `general.ts`             | `contactMeInfo`             | Footer contact `{ label, href }` entries: `github`, `email`, `linkedIn`                                                                                                                                                                          |
+| `logout_page_data.ts`    | `logoutPageData`            | h1 text                                                                                                                                                                                                                                          |
 
 ## Types
 
