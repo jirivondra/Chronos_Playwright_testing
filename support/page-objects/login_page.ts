@@ -9,6 +9,10 @@ export class LoginPage extends ToTopButton {
   private readonly userName: Locator
   private readonly passwordInput: Locator
   private readonly passwordToggle: Locator
+  private readonly loginError: Locator
+  private readonly usernameFieldError: Locator
+  private readonly passwordFieldError: Locator
+  private readonly todosEndpoint: string
   private readonly passwordHiddenType: string
   private readonly passwordVisibleType: string
 
@@ -20,6 +24,10 @@ export class LoginPage extends ToTopButton {
     this.createAccountLink = this.page.getByRole('link', { name: 'Create Account' })
     this.forgetAccessLink = this.page.getByRole('link', { name: 'Forgot Access?' })
     this.passwordToggle = this.page.getByRole('button', { name: 'visibility' })
+    this.loginError = this.page.locator('#error-msg')
+    this.usernameFieldError = this.page.locator('#username-error')
+    this.passwordFieldError = this.page.locator('#password-error')
+    this.todosEndpoint = '/todos'
     this.passwordHiddenType = 'password'
     this.passwordVisibleType = 'text'
   }
@@ -66,6 +74,39 @@ export class LoginPage extends ToTopButton {
 
   async clickSubmit(): Promise<this> {
     await this.signInButton.click()
+    return this
+  }
+
+  async checkLoginErrorMessage(text: string): Promise<this> {
+    await expect.soft(this.loginError).toBeVisible()
+    await expect.soft(this.loginError).toHaveText(text)
+    return this
+  }
+
+  async checkLoginErrorHidden(): Promise<this> {
+    await expect(this.loginError).not.toBeVisible()
+    return this
+  }
+
+  async checkUsernameFieldError(text: string): Promise<this> {
+    await expect.soft(this.usernameFieldError).toBeVisible()
+    await expect.soft(this.usernameFieldError).toHaveText(text)
+    return this
+  }
+
+  async checkPasswordFieldError(text: string): Promise<this> {
+    await expect.soft(this.passwordFieldError).toBeVisible()
+    await expect.soft(this.passwordFieldError).toHaveText(text)
+    return this
+  }
+
+  async checkPasswordFieldErrorHidden(): Promise<this> {
+    await expect(this.passwordFieldError).not.toBeVisible()
+    return this
+  }
+
+  async simulateBackendUnreachable(): Promise<this> {
+    await this.page.route(`**${this.todosEndpoint}`, (route) => route.abort('connectionrefused'))
     return this
   }
 

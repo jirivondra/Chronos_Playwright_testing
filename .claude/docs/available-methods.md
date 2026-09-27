@@ -251,18 +251,24 @@ Adds open task list, expand button, and API-based task utilities.
 
 **Methods:**
 
-| Method                      | Signature                                                       | Description                                                          |
-| --------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `fillUserName`              | `(userName: string) → Promise<this>`                            | Fills username input                                                 |
-| `fillPassword`              | `(password: string) → Promise<this>`                            | Fills password input                                                 |
-| `checkSignInButtonVisible`  | `() → Promise<this>`                                            | Asserts sign-in button is visible                                    |
-| `checkCreateAccountVisible` | `() → Promise<this>`                                            | Asserts "Create Account" link is visible                             |
-| `checkForgotAccessVisible`  | `() → Promise<this>`                                            | Asserts "Forgot Access?" link is visible                             |
-| `checkPasswordIsHidden`     | `() → Promise<this>`                                            | Asserts password input has `type="password"`                         |
-| `checkPasswordIsVisible`    | `() → Promise<this>`                                            | Asserts password input has `type="text"`                             |
-| `clickPasswordToggle`       | `() → Promise<this>`                                            | Clicks the password visibility toggle                                |
-| `clickSubmit`               | `() → Promise<this>`                                            | Clicks the sign-in button                                            |
-| `login`                     | `(userName: string, password: string) → Promise<DashboardPage>` | Fills credentials and submits — returns `DashboardPage` (chain ends) |
+| Method                          | Signature                                                       | Description                                                                                                      |
+| ------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `fillUserName`                  | `(userName: string) → Promise<this>`                            | Fills username input                                                                                             |
+| `fillPassword`                  | `(password: string) → Promise<this>`                            | Fills password input                                                                                             |
+| `checkSignInButtonVisible`      | `() → Promise<this>`                                            | Asserts sign-in button is visible                                                                                |
+| `checkCreateAccountVisible`     | `() → Promise<this>`                                            | Asserts "Create Account" link is visible                                                                         |
+| `checkForgotAccessVisible`      | `() → Promise<this>`                                            | Asserts "Forgot Access?" link is visible                                                                         |
+| `checkPasswordIsHidden`         | `() → Promise<this>`                                            | Asserts password input has `type="password"`                                                                     |
+| `checkPasswordIsVisible`        | `() → Promise<this>`                                            | Asserts password input has `type="text"`                                                                         |
+| `clickPasswordToggle`           | `() → Promise<this>`                                            | Clicks the password visibility toggle                                                                            |
+| `clickSubmit`                   | `() → Promise<this>`                                            | Clicks the sign-in button                                                                                        |
+| `checkLoginErrorMessage`        | `(text: string) → Promise<this>`                                | Soft-asserts the `#error-msg` banner is visible with the given text (invalid credentials or backend unreachable) |
+| `checkLoginErrorHidden`         | `() → Promise<this>`                                            | Asserts the `#error-msg` banner is not visible                                                                   |
+| `checkUsernameFieldError`       | `(text: string) → Promise<this>`                                | Soft-asserts the `#username-error` inline validation message is visible with the given text                      |
+| `checkPasswordFieldError`       | `(text: string) → Promise<this>`                                | Soft-asserts the `#password-error` inline validation message is visible with the given text                      |
+| `checkPasswordFieldErrorHidden` | `() → Promise<this>`                                            | Asserts the `#password-error` inline validation message is not visible                                           |
+| `simulateBackendUnreachable`    | `() → Promise<this>`                                            | Aborts requests to `/todos` so login fails as if the backend were down                                           |
+| `login`                         | `(userName: string, password: string) → Promise<DashboardPage>` | Fills credentials and submits — returns `DashboardPage` (chain ends)                                             |
 
 ---
 
