@@ -62,11 +62,11 @@ First class in the chain that adds assertion methods. Adds `h1`/`h2` locators an
 
 **Methods:**
 
-| Method           | Signature                        | Description                                                                                                                                                                                                                  |
-| ---------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `checkUrl`       | `(url: string) → Promise<this>`  | Asserts current URL equals `url`                                                                                                                                                                                             |
-| `checkH1`        | `(text: string) → Promise<this>` | Soft-asserts h1 is visible, count=1, has text                                                                                                                                                                                |
-| `checkH2`        | `(text: string) → Promise<this>` | Soft-asserts h2 is visible and has text                                                                                                                                                                                      |
+| Method           | Signature                        | Description                                                                             |
+| ---------------- | -------------------------------- | --------------------------------------------------------------------------------------- |
+| `checkUrl`       | `(url: string) → Promise<this>`  | Asserts current URL equals `url`                                                        |
+| `checkH1`        | `(text: string) → Promise<this>` | Soft-asserts h1 is visible, count=1, has text                                           |
+| `checkH2`        | `(text: string) → Promise<this>` | Soft-asserts h2 is visible and has text                                                 |
 | `checkOnlyOneH1` | `() → Promise<this>`             | Generic, page-agnostic structural check: asserts the whole page has exactly one `<h1>`. |
 
 ---
@@ -295,10 +295,10 @@ Composed into `OpenTasksPage` and `ClosedTasksPage` — the only two pages that 
 
 **Own methods:**
 
-| Method                        | Signature                            | Description                                                                                                                                                                                                                                                                                                                                                     |
-| ----------------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `checkItemCountOnPage`        | `(expected: number) → Promise<this>` | Asserts the done list (`#done-list`) currently renders exactly `expected` task cards                                                                                                                                                                                                                                                                            |
-| `checkAllTasksMarkedComplete` | `() → Promise<this>`                 | Soft-asserts every task currently rendered in the done list has a checked checkbox and struck-through title — works on whichever page is currently shown, including after pagination navigation                                                                                                                                                                 |
+| Method                        | Signature                            | Description                                                                                                                                                                                     |
+| ----------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checkItemCountOnPage`        | `(expected: number) → Promise<this>` | Asserts the done list (`#done-list`) currently renders exactly `expected` task cards                                                                                                            |
+| `checkAllTasksMarkedComplete` | `() → Promise<this>`                 | Soft-asserts every task currently rendered in the done list has a checked checkbox and struck-through title — works on whichever page is currently shown, including after pagination navigation |
 
 **Also has:** all `Pagination` methods (see that section).
 
