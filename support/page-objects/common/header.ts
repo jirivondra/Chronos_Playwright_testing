@@ -23,6 +23,11 @@ export class Header extends BasePage {
     return this
   }
 
+  async checkOnlyOneH1(): Promise<this> {
+    await expect(this.h1).toHaveCount(1)
+    return this
+  }
+
   async checkH2(text: string): Promise<this> {
     await expect.soft(this.h2).toBeVisible()
     await expect.soft(this.h2).toHaveText(text)

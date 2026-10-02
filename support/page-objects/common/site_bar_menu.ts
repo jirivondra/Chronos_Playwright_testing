@@ -7,7 +7,9 @@ export class SiteBarMenu extends AppBar {
   protected appVersion: Locator
   protected appVersionTitleText: string
 
+  private readonly sidebar: Locator
   private readonly logoImage: Locator
+  private readonly logoTitle: Locator
   private readonly logoSubtitle: Locator
   private readonly logoTitleText: string
   private readonly logoSubtitleText: string
@@ -16,6 +18,11 @@ export class SiteBarMenu extends AppBar {
   private readonly navOpenTasksLink: Locator
   private readonly navClosedTasksLink: Locator
   private readonly navCalendarLink: Locator
+
+  private readonly navDashboardText: string
+  private readonly navOpenTasksText: string
+  private readonly navClosedTasksText: string
+  private readonly navCalendarText: string
 
   private readonly navDashboardLabel: Locator
   private readonly navOpenTasksLabel: Locator
@@ -32,22 +39,43 @@ export class SiteBarMenu extends AppBar {
     this.openMenuButton = page.getByRole('button', { name: 'menu_open' })
     this.appVersionTitleText = 'App version'
     this.appVersionTitle = page.getByText(this.appVersionTitleText, { exact: true })
-    this.appVersion = page.getByText('App version')
+    this.appVersion = page.getByText(this.appVersionTitleText)
 
-    this.logoImage = page.getByRole('img', { name: 'Chronos' })
-    this.logoSubtitle = page.getByText('Personal Space')
+    this.sidebar = page.locator('#sidebar')
+
     this.logoTitleText = 'Chronos'
     this.logoSubtitleText = 'Personal Space'
+    this.logoImage = page.getByRole('img', { name: this.logoTitleText })
+    // FIXME: the sidebar logo is itself rendered as an <h1>, same role/level as a page's
+    // own content heading (e.g. ClosedTasksPage's "Closed Tasks" <h1>). A page should have
+    // exactly one <h1> — its own content heading — so the app should demote this logo to a
+    // non-heading element (or a lower heading level), not the other way round. Scoping to
+    // #sidebar is a stopgap so this locator still resolves to one element meanwhile.
+    this.logoTitle = this.sidebar.getByRole('heading', { level: 1 })
+    this.logoSubtitle = page.getByText(this.logoSubtitleText)
 
-    this.navDashboardLink = page.getByRole('link', { name: 'Dashboard' })
-    this.navOpenTasksLink = page.getByRole('link', { name: 'Open Tasks' })
-    this.navClosedTasksLink = page.getByRole('link', { name: 'Closed Tasks' })
-    this.navCalendarLink = page.getByRole('link', { name: 'Calendar' })
+    this.navDashboardText = 'Dashboard'
+    this.navOpenTasksText = 'Open Tasks'
+    this.navClosedTasksText = 'Closed Tasks'
+    this.navCalendarText = 'Calendar'
 
-    this.navDashboardLabel = this.navDashboardLink.getByText('Dashboard', { exact: true })
-    this.navOpenTasksLabel = this.navOpenTasksLink.getByText('Open Tasks', { exact: true })
-    this.navClosedTasksLabel = this.navClosedTasksLink.getByText('Closed Tasks', { exact: true })
-    this.navCalendarLabel = this.navCalendarLink.getByText('Calendar', { exact: true })
+    // Scoped to #sidebar: the breadcrumb on OpenTasksPage/ClosedTasksPage has its own
+    // "home" link accessible-named "Dashboard", which otherwise collides with this one.
+    this.navDashboardLink = this.sidebar.getByRole('link', { name: this.navDashboardText })
+    this.navOpenTasksLink = this.sidebar.getByRole('link', { name: this.navOpenTasksText })
+    this.navClosedTasksLink = this.sidebar.getByRole('link', { name: this.navClosedTasksText })
+    this.navCalendarLink = this.sidebar.getByRole('link', { name: this.navCalendarText })
+
+    this.navDashboardLabel = this.navDashboardLink.getByText(this.navDashboardText, {
+      exact: true,
+    })
+    this.navOpenTasksLabel = this.navOpenTasksLink.getByText(this.navOpenTasksText, {
+      exact: true,
+    })
+    this.navClosedTasksLabel = this.navClosedTasksLink.getByText(this.navClosedTasksText, {
+      exact: true,
+    })
+    this.navCalendarLabel = this.navCalendarLink.getByText(this.navCalendarText, { exact: true })
 
     this.navDashboardIcon = this.navDashboardLink.locator('span.material-symbols-outlined')
     this.navOpenTasksIcon = this.navOpenTasksLink.locator('span.material-symbols-outlined')
@@ -107,15 +135,15 @@ export class SiteBarMenu extends AppBar {
   }
 
   async checkLogoExpandedVisible(): Promise<this> {
-    await expect.soft(this.h1).toBeVisible()
-    await expect.soft(this.h1).toHaveText(this.logoTitleText)
+    await expect.soft(this.logoTitle).toBeVisible()
+    await expect.soft(this.logoTitle).toHaveText(this.logoTitleText)
     await expect.soft(this.logoSubtitle).toBeVisible()
     await expect.soft(this.logoSubtitle).toHaveText(this.logoSubtitleText)
     return this
   }
 
   async checkLogoCollapsedHidden(): Promise<this> {
-    await expect.soft(this.h1).not.toBeVisible()
+    await expect.soft(this.logoTitle).not.toBeVisible()
     await expect.soft(this.logoSubtitle).not.toBeVisible()
     return this
   }

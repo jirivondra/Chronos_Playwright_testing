@@ -2,6 +2,8 @@ import { test as base } from '@playwright/test'
 import { LoginPage } from '../page-objects/login_page'
 import { DashboardPage } from '../page-objects/dashboard_page'
 import { NewTaskPage } from '../page-objects/new_task_page'
+import { OpenTasksPage } from '../page-objects/open_tasks_page'
+import { ClosedTasksPage } from '../page-objects/closed_tasks_page'
 import { LogoutPage } from '../page-objects/logout_page'
 import { loginCredentials } from '../test-data/login_page_data'
 
@@ -12,6 +14,8 @@ export type AuthFixtures = {
   loginPage: LoginPage
   dashboardPage: DashboardPage
   newTaskPage: NewTaskPage
+  openTasksPage: OpenTasksPage
+  closedTasksPage: ClosedTasksPage
   logoutPage: LogoutPage
 }
 
@@ -52,6 +56,38 @@ export const authFixtures = base.extend<AuthFixtures>({
     await use(newTaskPage)
 
     await dashboardPage.deleteTaskByTitle(newTaskPage.taskName)
+  },
+  openTasksPage: async ({ page }, use) => {
+    const token = Buffer.from(
+      `${loginCredentials.validUser.username}:${loginCredentials.validUser.password}`
+    ).toString('base64')
+
+    await page.context().addInitScript((t) => {
+      sessionStorage.setItem('auth', t)
+    }, token)
+
+    const openTasksPage = new OpenTasksPage(page)
+
+    await openTasksPage.goto()
+    await use(openTasksPage)
+
+    await openTasksPage.clearCache()
+  },
+  closedTasksPage: async ({ page }, use) => {
+    const token = Buffer.from(
+      `${loginCredentials.validUser.username}:${loginCredentials.validUser.password}`
+    ).toString('base64')
+
+    await page.context().addInitScript((t) => {
+      sessionStorage.setItem('auth', t)
+    }, token)
+
+    const closedTasksPage = new ClosedTasksPage(page)
+
+    await closedTasksPage.goto()
+    await use(closedTasksPage)
+
+    await closedTasksPage.clearCache()
   },
   logoutPage: async ({ page, theme }, use) => {
     await page.addInitScript((t) => {

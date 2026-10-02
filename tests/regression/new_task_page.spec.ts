@@ -5,6 +5,12 @@ test.describe('Test New Task Page', () => {
     test('Create Task Button Is Disabled Until Title Is Filled', async ({ newTaskPage }) => {
       await newTaskPage.checkCreateTaskButtonBehave()
     })
+
+    // FIXME: edit-task.html renders two <h1> elements (sidebar logo + page heading).
+    // Skipped until the app fixes it — see FIXME in site_bar_menu.ts.
+    test.skip('Check Only One H1 On Page New Task', async ({ newTaskPage }) => {
+      await newTaskPage.checkOnlyOneH1()
+    })
   })
 
   test.describe('E2E Test For New Task Page', () => {
