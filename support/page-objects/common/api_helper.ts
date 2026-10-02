@@ -1,20 +1,41 @@
+export enum HttpMethod {
+  Get = 'GET',
+  Post = 'POST',
+  Put = 'PUT',
+  Delete = 'DELETE',
+}
+
 export class ApiHelper {
   protected path: string
   protected baseApiUrl: string
   private authHeader: string
+  private readonly authScheme: string
+  private readonly authEncoding: BufferEncoding
+  private readonly authorizationHeaderName: string
+  private readonly contentTypeHeaderName: string
+  private readonly jsonContentType: string
+  private readonly unsupportedMethodMessage: string
 
   constructor(path: string) {
     this.path = path
     this.baseApiUrl = process.env.API_BASE_URL!
+    this.authScheme = 'Basic '
+    this.authEncoding = 'base64'
+    this.authorizationHeaderName = 'Authorization'
+    this.contentTypeHeaderName = 'Content-Type'
+    this.jsonContentType = 'application/json'
+    this.unsupportedMethodMessage = 'Nepodporovaná metoda'
     this.authHeader =
-      'Basic ' +
-      Buffer.from(`${process.env.API_USERNAME}:${process.env.API_PASSWORD}`).toString('base64')
+      this.authScheme +
+      Buffer.from(`${process.env.API_USERNAME}:${process.env.API_PASSWORD}`).toString(
+        this.authEncoding
+      )
   }
 
   protected headers() {
     return {
-      Authorization: this.authHeader,
-      'Content-Type': 'application/json',
+      [this.authorizationHeaderName]: this.authHeader,
+      [this.contentTypeHeaderName]: this.jsonContentType,
     }
   }
 
@@ -26,7 +47,7 @@ export class ApiHelper {
 
   protected async post(endpoint: string, body?: object) {
     return fetch(`${this.baseApiUrl}${endpoint}`, {
-      method: 'POST',
+      method: HttpMethod.Post,
       headers: this.headers(),
       body: JSON.stringify(body),
     })
@@ -34,7 +55,7 @@ export class ApiHelper {
 
   protected async put(endpoint: string, body?: object) {
     return fetch(`${this.baseApiUrl}${endpoint}`, {
-      method: 'PUT',
+      method: HttpMethod.Put,
       headers: this.headers(),
       body: JSON.stringify(body),
     })
@@ -42,23 +63,23 @@ export class ApiHelper {
 
   protected async delete(endpoint: string) {
     return fetch(`${this.baseApiUrl}${endpoint}`, {
-      method: 'DELETE',
+      method: HttpMethod.Delete,
       headers: this.headers(),
     })
   }
 
-  async apiRequest(method: 'GET' | 'POST' | 'PUT' | 'DELETE', endpoint: string, body?: object) {
+  async apiRequest(method: HttpMethod, endpoint: string, body?: object) {
     switch (method) {
-      case 'GET':
+      case HttpMethod.Get:
         return this.get(endpoint)
-      case 'POST':
+      case HttpMethod.Post:
         return this.post(endpoint, body)
-      case 'PUT':
+      case HttpMethod.Put:
         return this.put(endpoint, body)
-      case 'DELETE':
+      case HttpMethod.Delete:
         return this.delete(endpoint)
       default:
-        throw new Error(`Nepodporovaná metoda: ${method}`)
+        throw new Error(`${this.unsupportedMethodMessage}: ${method}`)
     }
   }
 }
