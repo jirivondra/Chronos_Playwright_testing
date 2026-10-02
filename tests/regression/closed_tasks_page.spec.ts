@@ -1,6 +1,7 @@
 import { test } from '../../support/fixture'
 import { paginationData, generateNonLastPageNumber } from '../../support/test-data/pagination_data'
 import { closedTasksPageData } from '../../support/test-data/closed_tasks_page_data'
+import { themeCases } from '../../support/test-data/visual_testing_data'
 
 test.describe('Test Closed Tasks Page', () => {
   let paginationVisible: boolean
@@ -67,6 +68,16 @@ test.describe('Test Closed Tasks Page', () => {
       await test.step('Verify tasks on this page are marked complete', async () => {
         await closedTasksPage.checkAllTasksMarkedComplete()
       })
+    })
+  })
+})
+
+themeCases.forEach(({ description, theme }) => {
+  test.describe('Visual Tests For Closed Tasks Page', () => {
+    test.use({ theme })
+
+    test(`Closed Tasks Header Matches ${description} Snapshot`, async ({ closedTasksPage }) => {
+      await closedTasksPage.checkHeaderSnapshot(`closed-tasks-header-${theme}.png`)
     })
   })
 })
