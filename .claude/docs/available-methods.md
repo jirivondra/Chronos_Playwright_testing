@@ -187,6 +187,18 @@ Composed into `OpenTasksPage` and `ClosedTasksPage` — the only two pages that 
 
 ---
 
+## Theme
+
+**Not part of either inheritance chain** — a standalone component (`support/page-objects/common/theme.ts`), constructed with only `(page: Page)`. Used exclusively by `support/fixture/auth-fixtures.ts` to replace what used to be an identical `page.addInitScript(...)` block duplicated in every fixture (`loginPage`, `dashboardPage`, `openTasksPage`, `closedTasksPage`, `logoutPage`) — that duplication is what let the `openTasksPage` fixture silently typo its auth-token storage key once, undetected, since every fixture had its own copy to get wrong independently.
+
+| Method   | Signature                                  | Description                                                                           |
+| -------- | ------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `inject` | `(value: 'light'\|'dark') → Promise<void>` | Sets `localStorage.theme` via `page.addInitScript`, before the page's own scripts run |
+
+The app also has a real interactive theme-toggle widget (`#theme-toggle`, trigger + panel + light/dark/system buttons — currently only referenced as a mask target in `AppBar.checkTopHeaderSnapshot`). `Theme` is deliberately minimal for now — no locators or click methods for that widget — until a test actually needs to interact with it; add them here, not as a separate class, when that happens.
+
+---
+
 ## DashboardPage
 
 **Fixture:** `dashboardPage` (authenticated), `unAuthDashboardPage` (no auth)
@@ -359,16 +371,18 @@ Composed into `OpenTasksPage` and `ClosedTasksPage` — the only two pages that 
 
 ## Fixtures summary
 
-| Fixture name          | Type            | Page object       | Auth                                            | Notes                                                                                                           |
-| --------------------- | --------------- | ----------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `loginPage`           | auth-fixtures   | `LoginPage`       | none                                            | Login form tests — no token injected                                                                            |
-| `dashboardPage`       | auth-fixtures   | `DashboardPage`   | token in sessionStorage                         | Standard authenticated tests                                                                                    |
-| `newTaskPage`         | auth-fixtures   | `NewTaskPage`     | via `dashboardPage`                             | Depends on `dashboardPage`; teardown via `deleteTaskByTitle()`                                                  |
-| `openTasksPage`       | auth-fixtures   | `OpenTasksPage`   | token in sessionStorage                         | Standard authenticated tests                                                                                    |
-| `closedTasksPage`     | auth-fixtures   | `ClosedTasksPage` | token in sessionStorage + theme in localStorage | Standard authenticated tests; the only auth fixture that also injects `theme`, needed for visual/snapshot tests |
-| `logoutPage`          | auth-fixtures   | `LogoutPage`      | none                                            | Logout page tests — no token injected                                                                           |
-| `unAuthDashboardPage` | noauth-fixtures | `DashboardPage`   | none                                            | Redirect tests — no token                                                                                       |
-| `unAuthNewTaskPage`   | noauth-fixtures | `NewTaskPage`     | none                                            | Redirect tests — no token                                                                                       |
+| Fixture name          | Type            | Page object       | Auth                    | Notes                                                          |
+| --------------------- | --------------- | ----------------- | ----------------------- | -------------------------------------------------------------- |
+| `loginPage`           | auth-fixtures   | `LoginPage`       | none                    | Login form tests — no token injected                           |
+| `dashboardPage`       | auth-fixtures   | `DashboardPage`   | token in sessionStorage | Standard authenticated tests                                   |
+| `newTaskPage`         | auth-fixtures   | `NewTaskPage`     | via `dashboardPage`     | Depends on `dashboardPage`; teardown via `deleteTaskByTitle()` |
+| `openTasksPage`       | auth-fixtures   | `OpenTasksPage`   | token in sessionStorage | Standard authenticated tests                                   |
+| `closedTasksPage`     | auth-fixtures   | `ClosedTasksPage` | token in sessionStorage | Standard authenticated tests                                   |
+| `logoutPage`          | auth-fixtures   | `LogoutPage`      | none                    | Logout page tests — no token injected                          |
+| `unAuthDashboardPage` | noauth-fixtures | `DashboardPage`   | none                    | Redirect tests — no token                                      |
+| `unAuthNewTaskPage`   | noauth-fixtures | `NewTaskPage`     | none                    | Redirect tests — no token                                      |
+
+Every fixture in `auth-fixtures.ts` also injects `theme` into `localStorage` via `new Theme(page).inject(theme)` (see the `Theme` section above) — omitted from the table above since it's the same for all of them, not a per-fixture detail.
 
 ---
 
