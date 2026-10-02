@@ -5,6 +5,7 @@ import { NewTaskPage } from '../page-objects/new_task_page'
 import { OpenTasksPage } from '../page-objects/open_tasks_page'
 import { ClosedTasksPage } from '../page-objects/closed_tasks_page'
 import { LogoutPage } from '../page-objects/logout_page'
+import { Theme as ThemeComponent } from '../page-objects/common/theme'
 import { loginCredentials } from '../test-data/login_page_data'
 
 export type Theme = 'light' | 'dark'
@@ -23,9 +24,7 @@ export const authFixtures = base.extend<AuthFixtures>({
   theme: ['light', { option: true }],
 
   loginPage: async ({ page, theme }, use) => {
-    await page.addInitScript((t) => {
-      localStorage.setItem('theme', t)
-    }, theme)
+    await new ThemeComponent(page).inject(theme)
 
     const loginPage = new LoginPage(page)
 
@@ -34,7 +33,7 @@ export const authFixtures = base.extend<AuthFixtures>({
 
     await loginPage.clearCache()
   },
-  dashboardPage: async ({ page }, use) => {
+  dashboardPage: async ({ page, theme }, use) => {
     const token = Buffer.from(
       `${loginCredentials.validUser.username}:${loginCredentials.validUser.password}`
     ).toString('base64')
@@ -42,6 +41,7 @@ export const authFixtures = base.extend<AuthFixtures>({
     await page.context().addInitScript((t) => {
       sessionStorage.setItem('auth', t)
     }, token)
+    await new ThemeComponent(page).inject(theme)
 
     const dashboardPage = new DashboardPage(page)
 
@@ -57,7 +57,7 @@ export const authFixtures = base.extend<AuthFixtures>({
 
     await dashboardPage.deleteTaskByTitle(newTaskPage.taskName)
   },
-  openTasksPage: async ({ page }, use) => {
+  openTasksPage: async ({ page, theme }, use) => {
     const token = Buffer.from(
       `${loginCredentials.validUser.username}:${loginCredentials.validUser.password}`
     ).toString('base64')
@@ -65,6 +65,7 @@ export const authFixtures = base.extend<AuthFixtures>({
     await page.context().addInitScript((t) => {
       sessionStorage.setItem('auth', t)
     }, token)
+    await new ThemeComponent(page).inject(theme)
 
     const openTasksPage = new OpenTasksPage(page)
 
@@ -81,9 +82,7 @@ export const authFixtures = base.extend<AuthFixtures>({
     await page.context().addInitScript((t) => {
       sessionStorage.setItem('auth', t)
     }, token)
-    await page.addInitScript((t) => {
-      localStorage.setItem('theme', t)
-    }, theme)
+    await new ThemeComponent(page).inject(theme)
 
     const closedTasksPage = new ClosedTasksPage(page)
 
@@ -93,9 +92,7 @@ export const authFixtures = base.extend<AuthFixtures>({
     await closedTasksPage.clearCache()
   },
   logoutPage: async ({ page, theme }, use) => {
-    await page.addInitScript((t) => {
-      localStorage.setItem('theme', t)
-    }, theme)
+    await new ThemeComponent(page).inject(theme)
 
     const logoutPage = new LogoutPage(page)
 
