@@ -3,6 +3,7 @@ import {
   loginPageData,
   loginCredentials,
   negativeLoginCases,
+  invalidCredentialsCases,
 } from '../../support/test-data/login_page_data'
 import { contactMeInfo } from '../../support/test-data/general'
 import { themeCases } from '../../support/test-data/visual_testing_data'
@@ -89,6 +90,100 @@ test.describe('Test Login page', () => {
           .then((l) => l.clickSubmit())
           .then((l) => l.checkUrl(loginPageData.urlLoginPage))
       })
+    })
+
+    invalidCredentialsCases.forEach(({ description, username, password }) => {
+      test(`Login With ${description} Shows Error Message`, async ({ loginPage }) => {
+        await loginPage
+          .fillUserName(username)
+          .then((l) => l.fillPassword(password))
+          .then((l) => l.clickSubmit())
+          .then((l) => l.checkLoginErrorMessage(loginPageData.invalidCredentialsMessage))
+      })
+    })
+
+    test('Login With Username Under Minimum Length Shows Field Error', async ({ loginPage }) => {
+      await loginPage
+        .fillUserName(loginPageData.underMinLengthValue)
+        .then((l) => l.fillPassword(loginCredentials.invalidUser.password))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkUsernameFieldError(loginPageData.usernameFieldErrorMessage))
+    })
+
+    test('Login With Password Under Minimum Length Shows Field Error', async ({ loginPage }) => {
+      await loginPage
+        .fillUserName(loginCredentials.invalidUser.username)
+        .then((l) => l.fillPassword(loginPageData.underMinLengthValue))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkPasswordFieldError(loginPageData.passwordFieldErrorMessage))
+    })
+
+    test('Login With Both Fields Under Minimum Length Shows Both Field Errors', async ({
+      loginPage,
+    }) => {
+      await loginPage
+        .fillUserName(loginPageData.underMinLengthValue)
+        .then((l) => l.fillPassword(loginPageData.underMinLengthValue))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkUsernameFieldError(loginPageData.usernameFieldErrorMessage))
+        .then((l) => l.checkPasswordFieldError(loginPageData.passwordFieldErrorMessage))
+    })
+
+    test('Login Shows Error When Backend Is Unreachable', async ({ loginPage }) => {
+      await loginPage
+        .simulateBackendUnreachable()
+        .then((l) => l.fillUserName(loginCredentials.validUser.username))
+        .then((l) => l.fillPassword(loginCredentials.validUser.password))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkLoginErrorMessage(loginPageData.backendUnreachableMessage))
+    })
+
+    test('Login Error Message Hides When Retyping Credentials', async ({ loginPage }) => {
+      await loginPage
+        .fillUserName(loginCredentials.invalidUser.username)
+        .then((l) => l.fillPassword(loginCredentials.invalidUser.password))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkLoginErrorMessage(loginPageData.invalidCredentialsMessage))
+        .then((l) => l.fillUserName(loginCredentials.validUser.username))
+        .then((l) => l.checkLoginErrorHidden())
+    })
+
+    test('Password Field Error Hides When Retyping Password', async ({ loginPage }) => {
+      await loginPage
+        .fillUserName(loginCredentials.invalidUser.username)
+        .then((l) => l.fillPassword(loginPageData.underMinLengthValue))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkPasswordFieldError(loginPageData.passwordFieldErrorMessage))
+        .then((l) => l.fillPassword(loginCredentials.validUser.password))
+        .then((l) => l.checkPasswordFieldErrorHidden())
+    })
+
+    // Known app bug: the sign-in button is disabled on submit and only re-enabled
+    // in the network-failure branch, not after a client-side validation failure —
+    // the second clickSubmit() times out waiting for the (still disabled) button.
+    test('Login Succeeds After Fixing Username Under Minimum Length', async ({ loginPage }) => {
+      await loginPage
+        .fillUserName(loginPageData.underMinLengthValue)
+        .then((l) => l.fillPassword(loginCredentials.validUser.password))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkUsernameFieldError(loginPageData.usernameFieldErrorMessage))
+        .then((l) => l.fillUserName(loginCredentials.validUser.username))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkUrl(loginPageData.urlDashboard))
+    })
+
+    // Known app bug: same missing button re-enable, this time in the invalid-credentials
+    // branch (res not ok) — the retry's clickSubmit() times out on the disabled button.
+    test('Login Succeeds After Retrying With Correct Credentials', async ({ loginPage }) => {
+      await loginPage
+        .fillUserName(loginCredentials.invalidUser.username)
+        .then((l) => l.fillPassword(loginCredentials.invalidUser.password))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkLoginErrorMessage(loginPageData.invalidCredentialsMessage))
+        .then((l) => l.fillUserName(loginCredentials.validUser.username))
+        .then((l) => l.fillPassword(loginCredentials.validUser.password))
+        .then((l) => l.clickSubmit())
+        .then((l) => l.checkUrl(loginPageData.urlDashboard))
     })
   })
 

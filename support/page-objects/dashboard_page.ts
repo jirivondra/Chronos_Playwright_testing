@@ -1,10 +1,17 @@
 import { Page, Locator, expect } from '@playwright/test'
 import dayjs from 'dayjs'
+import { SiteBarMenu } from './common/site_bar_menu'
 import { OpenTask } from './common/open_task'
+import { HttpMethod } from './common/api_helper'
 import type { NewTaskPage } from './new_task_page'
 import { dashboardPageData } from '../test-data/dashboard_page_data'
+import { Todo } from '../types/chronos/todo'
 
-export class DashboardPage extends OpenTask {
+export class DashboardPage extends SiteBarMenu {
+  private readonly openTask: OpenTask
+  readonly openListEmptyMessage: Locator
+  readonly expandOpenListButton: Locator
+  private readonly todosEndpoint: string
   readonly newTaskButton: Locator
   private readonly doneList: Locator
   private readonly doneListTaskTitle: Locator
@@ -15,10 +22,11 @@ export class DashboardPage extends OpenTask {
   readonly upcomingHeading: Locator
   private readonly upcomingList: Locator
   private readonly upcomingEmptyMessage: Locator
-  private readonly dashboardTodosEndpoint: string
   private readonly pulseCountSuffix: string
   private readonly upcomingLabelToday: string
   private readonly upcomingLabelTomorrow: string
+  private readonly newTaskRequestUrlFragment: string
+  private readonly taskDetailUrlPattern: RegExp
   private readonly calendarMonthLabel: Locator
   private readonly calendarCurrentMonthDays: Locator
   private readonly calendarTodayCell: Locator
@@ -29,9 +37,16 @@ export class DashboardPage extends OpenTask {
   private readonly calcButton: Locator
   private readonly calcClearButton: Locator
   private readonly calcBackspaceButton: Locator
+  private readonly backendUnreachableScreen: Locator
+  private readonly backendUnreachableHeading: Locator
+  private readonly backendUnreachableRetryButton: Locator
 
   constructor(page: Page) {
     super(page, '/dashboard.html')
+    this.openTask = new OpenTask(page)
+    this.openListEmptyMessage = this.openTask.openListEmptyMessage
+    this.expandOpenListButton = this.openTask.expandOpenListButton
+    this.todosEndpoint = '/todos'
     this.newTaskButton = page.getByRole('button', { name: 'New Task' })
     this.doneList = page.locator('#done-list')
     this.doneListTaskTitle = this.doneList.getByRole('heading', { level: 4 })
@@ -45,7 +60,8 @@ export class DashboardPage extends OpenTask {
     this.upcomingEmptyMessage = this.upcomingList.getByText(dashboardPageData.upcomingEmptyMessage)
     this.upcomingLabelToday = dashboardPageData.upcomingLabelToday
     this.upcomingLabelTomorrow = dashboardPageData.upcomingLabelTomorrow
-    this.dashboardTodosEndpoint = '/todos'
+    this.newTaskRequestUrlFragment = 'edit-task'
+    this.taskDetailUrlPattern = /task-detail\.html\?id=\d+&from=dashboard/
     const calendarDaysContainer = page.locator('#cal-days')
     this.calendarMonthLabel = page.locator('#cal-month-label')
     this.calendarCurrentMonthDays = calendarDaysContainer.locator(
@@ -59,6 +75,56 @@ export class DashboardPage extends OpenTask {
     this.calcButton = page.locator('#w-calc-btn')
     this.calcClearButton = page.locator('[data-action="clear"]')
     this.calcBackspaceButton = page.locator('[data-action="backspace"]')
+    this.backendUnreachableScreen = page.locator('#be-down')
+    this.backendUnreachableHeading = this.backendUnreachableScreen.getByRole('heading', {
+      name: "Can't Reach the Server",
+    })
+    this.backendUnreachableRetryButton = this.backendUnreachableScreen.getByRole('button', {
+      name: 'Try Again',
+    })
+  }
+
+  async clickExpandButton(): Promise<this> {
+    await this.openTask.clickExpandButton()
+    return this
+  }
+
+  async countOpenTasks(): Promise<number> {
+    return this.openTask.countOpenTasks()
+  }
+
+  async checkExpandButtonVisible(): Promise<this> {
+    await this.openTask.checkExpandButtonVisible()
+    return this
+  }
+
+  async checkExpandButtonNotVisible(): Promise<this> {
+    await this.openTask.checkExpandButtonNotVisible()
+    return this
+  }
+
+  async checkEmptyOpenSection(): Promise<this> {
+    await this.openTask.checkEmptyOpenSection()
+    return this
+  }
+
+  async deleteTaskByTitle(title: string): Promise<void> {
+    await this.openTask.deleteTaskByTitle(title)
+  }
+
+  async checkTaskInOpenSection(taskName: string): Promise<this> {
+    await this.openTask.checkTaskInOpenSection(taskName)
+    return this
+  }
+
+  async checkTaskHasEditAndDeleteButtons(taskName: string): Promise<this> {
+    await this.openTask.checkTaskHasEditAndDeleteButtons(taskName)
+    return this
+  }
+
+  async checkAllTasksInOpenSectionMarkedIncomplete(): Promise<this> {
+    await this.openTask.checkAllTasksInOpenSectionMarkedIncomplete()
+    return this
   }
 
   private taskInFinishSection(taskName: string): Locator {
@@ -66,11 +132,11 @@ export class DashboardPage extends OpenTask {
   }
 
   private taskCheckbox(taskName: string): Locator {
-    return this.taskGroup.filter({ hasText: taskName }).getByRole('checkbox')
+    return this.openTask.taskGroup.filter({ hasText: taskName }).getByRole('checkbox')
   }
 
   private taskTitle(taskName: string): Locator {
-    return this.taskGroup.filter({ hasText: taskName }).getByRole('heading')
+    return this.openTask.taskGroup.filter({ hasText: taskName }).getByRole('heading')
   }
 
   private upcomingItem(taskName: string): Locator {
@@ -90,8 +156,22 @@ export class DashboardPage extends OpenTask {
     return this
   }
 
+  async simulateBackendUnreachable(): Promise<this> {
+    await this.page.route(`**${this.todosEndpoint}`, (route) => route.abort('connectionrefused'))
+    return this
+  }
+
+  async checkBackendUnreachableScreen(): Promise<this> {
+    await expect.soft(this.backendUnreachableScreen).toBeVisible()
+    await expect.soft(this.backendUnreachableHeading).toBeVisible()
+    await expect.soft(this.backendUnreachableRetryButton).toBeVisible()
+    return this
+  }
+
   async toggleTask(taskName: string): Promise<this> {
-    const response = this.page.waitForResponse((res) => res.url().includes('/todos') && res.ok())
+    const response = this.page.waitForResponse(
+      (res) => res.url().includes(this.todosEndpoint) && res.ok()
+    )
     await this.taskCheckbox(taskName).click()
     await response
     return this
@@ -104,21 +184,21 @@ export class DashboardPage extends OpenTask {
 
   async checkTaskMarkedComplete(taskName: string): Promise<this> {
     await expect.soft(this.taskCheckbox(taskName)).toBeChecked()
-    await expect.soft(this.taskTitle(taskName)).toHaveClass(/line-through/)
+    await expect.soft(this.taskTitle(taskName)).toHaveClass(this.openTask.completedTaskClass)
     return this
   }
 
   async checkTaskMarkedIncomplete(taskName: string): Promise<this> {
     await expect.soft(this.taskCheckbox(taskName)).not.toBeChecked()
-    await expect.soft(this.taskTitle(taskName)).not.toHaveClass(/line-through/)
+    await expect.soft(this.taskTitle(taskName)).not.toHaveClass(this.openTask.completedTaskClass)
     return this
   }
 
   async checkAllTasksInFinishSectionMarkedComplete(): Promise<this> {
-    const tasks = await this.doneList.locator(this.taskGroup).all()
+    const tasks = await this.doneList.locator(this.openTask.taskGroup).all()
     for (const task of tasks) {
       await expect.soft(task.getByRole('checkbox')).toBeChecked()
-      await expect.soft(task.getByRole('heading')).toHaveClass(/line-through/)
+      await expect.soft(task.getByRole('heading')).toHaveClass(this.openTask.completedTaskClass)
     }
     return this
   }
@@ -130,11 +210,11 @@ export class DashboardPage extends OpenTask {
   }
 
   async checkNewTaskNavigationRequest(): Promise<this> {
-    const requestPromise = this.page.waitForRequest(/edit-task/)
+    const requestPromise = this.page.waitForRequest(new RegExp(this.newTaskRequestUrlFragment))
     await this.newTaskButton.click()
     const request = await requestPromise
-    expect.soft(request.url()).toContain('edit-task')
-    expect.soft(request.method()).toBe('GET')
+    expect.soft(request.url()).toContain(this.newTaskRequestUrlFragment)
+    expect.soft(request.method()).toBe(HttpMethod.Get)
     return this
   }
 
@@ -146,8 +226,8 @@ export class DashboardPage extends OpenTask {
 
   async checkPulseStats(): Promise<this> {
     await this.goto()
-    const response = await this.get(this.dashboardTodosEndpoint)
-    const todos = (await response.json()) as { completed: boolean }[]
+    const response = await this.get(this.todosEndpoint)
+    const todos = (await response.json()) as Todo[]
     const total = todos.length
     const doneCount = todos.filter((t) => t.completed).length
     const pct = total ? Math.round((doneCount / total) * 100) : 0
@@ -162,8 +242,8 @@ export class DashboardPage extends OpenTask {
   }
 
   async countUpcomingTasks(): Promise<number> {
-    const response = await this.get(this.dashboardTodosEndpoint)
-    const todos = (await response.json()) as { completed: boolean; due_date?: string }[]
+    const response = await this.get(this.todosEndpoint)
+    const todos = (await response.json()) as Todo[]
     const today = dayjs().format('YYYY-MM-DD')
     const weekAhead = dayjs().add(7, 'day').format('YYYY-MM-DD')
     return todos.filter(
@@ -183,7 +263,7 @@ export class DashboardPage extends OpenTask {
   }
 
   async createTaskWithDueDate(title: string, dueDate: string, completed = false): Promise<this> {
-    await this.post(this.dashboardTodosEndpoint, { title, due_date: dueDate, completed })
+    await this.post(this.todosEndpoint, { title, due_date: dueDate, completed })
     await this.goto()
     return this
   }
@@ -210,7 +290,7 @@ export class DashboardPage extends OpenTask {
 
   async checkUpcomingTaskNavigation(taskName: string): Promise<this> {
     await this.upcomingItem(taskName).click()
-    await this.page.waitForURL(/task-detail\.html\?id=\d+&from=dashboard/)
+    await this.page.waitForURL(this.taskDetailUrlPattern)
     return this
   }
 

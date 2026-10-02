@@ -58,12 +58,6 @@ test.describe('Test Dashboard Page', () => {
     })
   })
 
-  test.describe('E2E Test For Logout', () => {
-    test('Logout Redirects To Logout Page', async ({ dashboardPage }) => {
-      await dashboardPage.clickLogout().then((d) => d.checkUrl(loginPageData.urlLogoutPage))
-    })
-  })
-
   test.describe('E2E Test For Task Toggle', () => {
     let taskName: string
 
@@ -334,6 +328,23 @@ test.describe('Test Dashboard Page', () => {
           .enterCalculatorNumber(digit)
           .then((d) => d.checkCalculatorDisplay(digit))
       })
+    })
+  })
+
+  test.describe('E2E Test For Backend Unavailable', () => {
+    test('Dashboard Shows Backend Unreachable Screen When Todos Fetch Fails', async ({
+      dashboardPage,
+    }) => {
+      await dashboardPage
+        .simulateBackendUnreachable()
+        .then((d) => d.goto())
+        .then((d) => d.checkBackendUnreachableScreen())
+    })
+  })
+
+  test.describe('E2E Test For Logout', () => {
+    test('Logout Redirects To Logout Page', async ({ dashboardPage }) => {
+      await dashboardPage.clickLogout().then((d) => d.checkUrl(loginPageData.urlLogoutPage))
     })
   })
 })

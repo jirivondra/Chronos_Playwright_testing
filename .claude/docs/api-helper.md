@@ -10,15 +10,17 @@
 
 ## Available methods
 
-| Method       | Signature                               | Description                                                       |
-| ------------ | --------------------------------------- | ----------------------------------------------------------------- |
-| `get`        | `get(endpoint: string)`                 | Sends a GET request                                               |
-| `post`       | `post(endpoint: string, body?: object)` | Sends a POST request with an optional JSON body                   |
-| `put`        | `put(endpoint: string, body?: object)`  | Sends a PUT request with an optional JSON body                    |
-| `delete`     | `delete(endpoint: string)`              | Sends a DELETE request                                            |
-| `apiRequest` | `apiRequest(method, endpoint, body?)`   | Generic dispatcher — use when the method is determined at runtime |
+| Method       | Signature                                         | Description                                                       |
+| ------------ | ------------------------------------------------- | ----------------------------------------------------------------- |
+| `get`        | `get(endpoint: string)`                           | Sends a GET request                                               |
+| `post`       | `post(endpoint: string, body?: object)`           | Sends a POST request with an optional JSON body                   |
+| `put`        | `put(endpoint: string, body?: object)`            | Sends a PUT request with an optional JSON body                    |
+| `delete`     | `delete(endpoint: string)`                        | Sends a DELETE request                                            |
+| `apiRequest` | `apiRequest(method: HttpMethod, endpoint, body?)` | Generic dispatcher — use when the method is determined at runtime |
 
 All methods return `Promise<Response>` (native `fetch` response). `get`, `post`, `put`, and `delete` are `protected` — accessible only within page objects. `apiRequest` is `public`.
+
+`HttpMethod` is an exported enum (`HttpMethod.Get`, `HttpMethod.Post`, `HttpMethod.Put`, `HttpMethod.Delete`) from `support/page-objects/common/api_helper.ts` — import it instead of passing raw method strings, the same rule as any other magic string.
 
 Authentication and `Content-Type: application/json` are added automatically from environment variables (`API_BASE_URL`, `API_USERNAME`, `API_PASSWORD`).
 
@@ -78,16 +80,38 @@ test('display user profile', async ({ userPage }) => {
 })
 ```
 
-**Directly via `apiRequest`** — when the call is a one-off teardown or verification that does not belong to any page object and would not be reused. Store the endpoint in a named constant, not as an inline string:
+**Directly via `apiRequest`** — when the call is a one-off teardown or verification that does not belong to any page object and would not be reused. Store the endpoint in a named constant, not as an inline string, and pass the method as `HttpMethod`, not a raw string:
 
 ```ts
+import { HttpMethod } from '../support/page-objects/common/api_helper'
+
 test('delete user', async ({ userPage }) => {
   const userEndpoint = '/api/users/42'
   await userPage.deleteUser(42)
-  const response = await userPage.apiRequest('GET', userEndpoint)
+  const response = await userPage.apiRequest(HttpMethod.Get, userEndpoint)
   expect(response.status).toBe(404)
 })
 ```
+
+## Typing a JSON response
+
+Don't redeclare an inline anonymous type every time a response is cast — reuse (or extend) the shared interface for that entity from `support/types/chronos/`:
+
+```ts
+// correct — shared type, single source of truth for the entity's shape
+import { Todo } from '../../types/chronos/todo'
+
+async countOpenTasks(): Promise<number> {
+  const response = await this.get(this.todosEndpoint)
+  const todos = (await response.json()) as Todo[]
+  return todos.filter((t) => !t.completed).length
+}
+
+// incorrect — a fresh ad-hoc shape per call site, drifts out of sync with the real API
+const todos = (await response.json()) as { completed: boolean }[]
+```
+
+If a method only needs a subset of fields, narrow the shared type instead of writing a new one — `Pick<Todo, 'id' | 'title'>` rather than `{ id: number; title: string }`.
 
 ## Rules
 
@@ -95,3 +119,4 @@ test('delete user', async ({ userPage }) => {
 - `get`, `post`, `put`, `delete` are `protected` — call them only from within page object methods, not from test files.
 - Use `apiRequest` in tests only when no suitable page object method exists and creating one would not be reused.
 - Assert the response status or body in the test, not inside the page object method — page objects prepare data, tests verify outcomes.
+- Type a JSON response with a shared interface from `support/types/chronos/` (adding one if it doesn't exist yet), not an inline anonymous type.

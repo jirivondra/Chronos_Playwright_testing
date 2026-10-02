@@ -5,6 +5,10 @@ test.describe('Test New Task Page', () => {
     test('Create Task Button Is Disabled Until Title Is Filled', async ({ newTaskPage }) => {
       await newTaskPage.checkCreateTaskButtonBehave()
     })
+
+    test('Check Only One H1 On Page New Task', async ({ newTaskPage }) => {
+      await newTaskPage.checkOnlyOneH1()
+    })
   })
 
   test.describe('E2E Test For New Task Page', () => {

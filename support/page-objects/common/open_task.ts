@@ -1,39 +1,46 @@
 import { Page, Locator, expect } from '@playwright/test'
-import { SiteBarMenu } from './site_bar_menu'
+import { ApiHelper } from './api_helper'
 import { dashboardPageData } from '../../test-data/dashboard_page_data'
+import { Todo } from '../../types/chronos/todo'
 
-export class OpenTask extends SiteBarMenu {
-  protected readonly openList: Locator
-  protected readonly taskGroup: Locator
+export class OpenTask extends ApiHelper {
+  private readonly openList: Locator
+  readonly taskGroup: Locator
   readonly openListEmptyMessage: Locator
   private readonly openListEmptyMessageText: string
   readonly expandOpenListButton: Locator
   private readonly todosEndpoint: string
+  private readonly editButtonLabel: string
+  private readonly deleteButtonLabel: string
+  readonly completedTaskClass: RegExp
 
-  constructor(page: Page, path: string) {
-    super(page, path)
+  constructor(page: Page) {
+    super('')
     this.openList = page.locator('#open-list')
     this.taskGroup = page.locator('.group')
     this.openListEmptyMessageText = dashboardPageData.emptyMessage
     this.openListEmptyMessage = this.openList.getByText(this.openListEmptyMessageText)
     this.expandOpenListButton = this.openList.getByRole('button', { name: /Zobrazit všechny/ })
     this.todosEndpoint = '/todos'
+    this.editButtonLabel = 'edit'
+    this.deleteButtonLabel = 'delete'
+    this.completedTaskClass = /line-through/
   }
 
-  protected taskInOpenSection(taskName: string): Locator {
+  private taskInOpenSection(taskName: string): Locator {
     return this.openList.getByRole('heading', { name: taskName })
   }
 
-  protected taskEditButton(taskName: string): Locator {
+  private taskEditButton(taskName: string): Locator {
     return this.taskGroup
       .filter({ hasText: taskName })
-      .getByRole('button', { name: 'edit', exact: true })
+      .getByRole('button', { name: this.editButtonLabel, exact: true })
   }
 
-  protected taskDeleteButton(taskName: string): Locator {
+  private taskDeleteButton(taskName: string): Locator {
     return this.taskGroup
       .filter({ hasText: taskName })
-      .getByRole('button', { name: 'delete', exact: true })
+      .getByRole('button', { name: this.deleteButtonLabel, exact: true })
   }
 
   async clickExpandButton(): Promise<this> {
@@ -43,7 +50,7 @@ export class OpenTask extends SiteBarMenu {
 
   async countOpenTasks(): Promise<number> {
     const response = await this.get(this.todosEndpoint)
-    const todos = (await response.json()) as { completed: boolean }[]
+    const todos = (await response.json()) as Todo[]
     return todos.filter((t) => !t.completed).length
   }
 
@@ -65,7 +72,7 @@ export class OpenTask extends SiteBarMenu {
 
   async deleteTaskByTitle(title: string): Promise<void> {
     const response = await this.get(this.todosEndpoint)
-    const todos = (await response.json()) as { id: number; title: string }[]
+    const todos = (await response.json()) as Todo[]
     const ids = todos.filter((t) => t.title === title).map((t) => t.id)
     await Promise.all(ids.map((id) => this.delete(`${this.todosEndpoint}/${id}`)))
   }
@@ -85,8 +92,13 @@ export class OpenTask extends SiteBarMenu {
     const tasks = await this.openList.locator(this.taskGroup).all()
     for (const task of tasks) {
       await expect.soft(task.getByRole('checkbox')).not.toBeChecked()
-      await expect.soft(task.getByRole('heading')).not.toHaveClass(/line-through/)
+      await expect.soft(task.getByRole('heading')).not.toHaveClass(this.completedTaskClass)
     }
+    return this
+  }
+
+  async checkItemCountOnPage(expected: number): Promise<this> {
+    await expect(this.openList.locator(this.taskGroup)).toHaveCount(expected)
     return this
   }
 }
