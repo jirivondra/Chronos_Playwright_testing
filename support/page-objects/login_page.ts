@@ -15,9 +15,11 @@ export class LoginPage extends ToTopButton {
   private readonly todosEndpoint: string
   private readonly passwordHiddenType: string
   private readonly passwordVisibleType: string
+  private readonly dashboardUrlPattern: string
 
   constructor(page: Page) {
     super(page, '/login.html')
+    this.dashboardUrlPattern = '**/dashboard.html'
     this.userName = this.page.getByLabel('Username')
     this.passwordInput = this.page.getByLabel('Password')
     this.signInButton = this.page.getByRole('button', { name: 'Sign In' })
@@ -114,6 +116,7 @@ export class LoginPage extends ToTopButton {
     await this.fillUserName(userName)
     await this.fillPassword(password)
     await this.clickSubmit()
+    await this.page.waitForURL(this.dashboardUrlPattern)
     return new DashboardPage(this.page)
   }
 }
