@@ -7,16 +7,19 @@ Complete reference of all page objects, their public locators, and public method
 Two chains exist in this project:
 
 ```
-ApiHelper → BasePage → Header → Footer → ToTopButton → AppBar → SiteBarMenu → OpenTask → DashboardPage
-                                                                              └─ NewTaskPage
+ApiHelper → BasePage → Header → Footer → ToTopButton → AppBar → SiteBarMenu → DashboardPage
+                                                                              ├─ NewTaskPage
+                                                                              ├─ OpenTasksPage
+                                                                              └─ ClosedTasksPage
 
 ApiHelper → BasePage → Header → Footer → ToTopButton → LoginPage
                                                       └─ LogoutPage
 ```
 
-`DashboardPage` has the full chain — all methods from every class above are available on it.
-`NewTaskPage` skips `OpenTask` — task-list methods are not available on it.
-`LoginPage` and `LogoutPage` skip `AppBar`, `SiteBarMenu`, and `OpenTask`.
+`DashboardPage`, `NewTaskPage`, `OpenTasksPage`, and `ClosedTasksPage` all extend `SiteBarMenu` directly — every method from `ApiHelper` through `SiteBarMenu` is available on all four.
+`LoginPage` and `LogoutPage` skip `AppBar` and `SiteBarMenu`.
+
+`OpenTask` is **not** in this chain — it's a composed component (see its own section below). `DashboardPage` and `OpenTasksPage` each hold a private `OpenTask` instance and expose its methods through thin delegation wrappers; `NewTaskPage` and `ClosedTasksPage` don't need it and don't compose it. This is the same composition pattern as `Pagination`, applied because `OpenTask`'s task-list behaviour is only relevant to pages that actually render a task list — unlike `Header`/`Footer`/`ToTopButton`/`AppBar`/`SiteBarMenu`, which every page needs.
 
 ---
 
@@ -24,11 +27,13 @@ ApiHelper → BasePage → Header → Footer → ToTopButton → LoginPage
 
 Base HTTP client. No Playwright dependency.
 
-| Method       | Signature                                                                                       | Description                                                                   |
-| ------------ | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `apiRequest` | `(method: 'GET'\|'POST'\|'PUT'\|'DELETE', endpoint: string, body?: object) → Promise<Response>` | Public generic dispatcher — call from tests when no page object method exists |
+| Method       | Signature                                                                   | Description                                                                   |
+| ------------ | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `apiRequest` | `(method: HttpMethod, endpoint: string, body?: object) → Promise<Response>` | Public generic dispatcher — call from tests when no page object method exists |
 
 `get`, `post`, `put`, `delete` are `protected` — only callable inside page object methods, not from tests.
+
+`HttpMethod` is an exported enum (`Get`, `Post`, `Put`, `Delete`) — pass `HttpMethod.Get` etc., never a raw method string.
 
 ---
 
@@ -57,11 +62,12 @@ First class in the chain that adds assertion methods. Adds `h1`/`h2` locators an
 
 **Methods:**
 
-| Method     | Signature                        | Description                                   |
-| ---------- | -------------------------------- | --------------------------------------------- |
-| `checkUrl` | `(url: string) → Promise<this>`  | Asserts current URL equals `url`              |
-| `checkH1`  | `(text: string) → Promise<this>` | Soft-asserts h1 is visible, count=1, has text |
-| `checkH2`  | `(text: string) → Promise<this>` | Soft-asserts h2 is visible and has text       |
+| Method           | Signature                        | Description                                                                                                                                                                                                                  |
+| ---------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checkUrl`       | `(url: string) → Promise<this>`  | Asserts current URL equals `url`                                                                                                                                                                                             |
+| `checkH1`        | `(text: string) → Promise<this>` | Soft-asserts h1 is visible, count=1, has text                                                                                                                                                                                |
+| `checkH2`        | `(text: string) → Promise<this>` | Soft-asserts h2 is visible and has text                                                                                                                                                                                      |
+| `checkOnlyOneH1` | `() → Promise<this>`             | Generic, page-agnostic structural check: asserts the whole page has exactly one `<h1>`. Currently failing (skipped) on `open-tasks.html`, `finished-tasks.html`, and `edit-task.html` — see the FIXME in `site_bar_menu.ts`. |
 
 ---
 
@@ -110,7 +116,9 @@ Adds top navigation bar with logout action.
 
 ## SiteBarMenu
 
-Adds sidebar menu with logo, navigation links, and app version.
+Adds sidebar menu with logo, navigation links, and app version. All logo/nav locators are scoped to `#sidebar` — necessary because `OpenTasksPage`/`ClosedTasksPage` render a breadcrumb with its own "Dashboard"-named link and their own content `<h1>`, both of which would otherwise collide with these locators if left unscoped to the whole page.
+
+**FIXME (app bug):** the sidebar logo ("Chronos") is itself rendered as an `<h1>`, the same role/level as a page's own content heading. A page should have exactly one `<h1>` — its own content heading (e.g. `ClosedTasksPage`'s "Closed Tasks") — so the app should demote the logo to a non-heading element, not the other way round. `logoTitle` scopes to `#sidebar` as a stopgap so the locator resolves to one element meanwhile; remove that scoping once the app is fixed.
 
 | Method                          | Signature            | Description                                                                                         |
 | ------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------- |
@@ -131,7 +139,7 @@ Adds sidebar menu with logo, navigation links, and app version.
 
 ## OpenTask
 
-Adds open task list, expand button, and API-based task utilities.
+**Not part of the inheritance chain** — a standalone component (`support/page-objects/common/open_task.ts`), constructed with only `(page: Page)`, extending only `ApiHelper` (for `get`/`delete`), not `BasePage`. Adds open task list, expand button, and API-based task utilities. Used via **composition**: `DashboardPage` and `OpenTasksPage` each hold `private readonly openTask: OpenTask` and re-expose its methods through delegation wrappers that return their own `this` — see `page-objects.md` for the pattern.
 
 **Public locators:**
 
@@ -153,6 +161,29 @@ Adds open task list, expand button, and API-based task utilities.
 | `checkTaskInOpenSection`                     | `(taskName: string) → Promise<this>` | Asserts task heading is visible in open list                                                            |
 | `checkTaskHasEditAndDeleteButtons`           | `(taskName: string) → Promise<this>` | Soft-asserts edit and delete buttons are visible for the task                                           |
 | `checkAllTasksInOpenSectionMarkedIncomplete` | `() → Promise<this>`                 | Soft-asserts every visible task in the open list has an unchecked checkbox and non-struck-through title |
+| `checkItemCountOnPage`                       | `(expected: number) → Promise<this>` | Asserts the open list currently renders exactly `expected` task cards                                   |
+
+---
+
+## Pagination
+
+**Not part of either inheritance chain** — a standalone component (`support/page-objects/common/pagination.ts`), constructed with only `(page: Page)`, no `path`. It carries no `ApiHelper`/`BasePage` behaviour (no `goto`, no API calls) because it never navigates anywhere on its own — it only operates on the `#pagination` control already present within whichever page embeds it. Use it via **composition**: instantiate it as a private property on a page object (see `page-objects.md`), not by extending it.
+
+Composed into `OpenTasksPage` and `ClosedTasksPage` — the only two pages that render `#pagination` (`open-tasks.html` and `finished-tasks.html`).
+
+| Method             | Signature                              | Description                                                                                                                                                                                                                                    |
+| ------------------ | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isVisible`        | `() → Promise<boolean>`                | Returns whether the pagination control is rendered — use for `test.skip()` conditions                                                                                                                                                          |
+| `checkVisible`     | `() → Promise<this>`                   | Asserts the pagination control is visible                                                                                                                                                                                                      |
+| `checkNotVisible`  | `() → Promise<this>`                   | Asserts the pagination control is not visible                                                                                                                                                                                                  |
+| `hasNextPage`      | `() → Promise<boolean>`                | Returns whether a clickable "next" arrow is present (false on the last page)                                                                                                                                                                   |
+| `hasPreviousPage`  | `() → Promise<boolean>`                | Returns whether a clickable "previous" arrow is present (false on the first page)                                                                                                                                                              |
+| `getTotalPages`    | `() → Promise<number>`                 | Reads the highest page number currently rendered among the numbered page buttons                                                                                                                                                               |
+| `getCurrentPage`   | `() → Promise<number>`                 | Reads the number of the currently active page button                                                                                                                                                                                           |
+| `goToPage`         | `(pageNumber: number) → Promise<this>` | Walks to the given page by clicking "next"/"previous" repeatedly until it's current — the app only renders page-number buttons near the current and last page (ellipsis-compacted), so arbitrary page numbers are often not directly clickable |
+| `goToNextPage`     | `() → Promise<this>`                   | Clicks the "next" arrow                                                                                                                                                                                                                        |
+| `goToPreviousPage` | `() → Promise<this>`                   | Clicks the "previous" arrow                                                                                                                                                                                                                    |
+| `checkCurrentPage` | `(pageNumber: number) → Promise<this>` | Asserts the active page button shows the given page number                                                                                                                                                                                     |
 
 ---
 
@@ -160,15 +191,17 @@ Adds open task list, expand button, and API-based task utilities.
 
 **Fixture:** `dashboardPage` (authenticated), `unAuthDashboardPage` (no auth)
 **Path:** `/dashboard.html`
-**Extends:** `OpenTask` — has all methods from the full chain.
+**Extends:** `SiteBarMenu` — has all methods from `ApiHelper` through `SiteBarMenu`. **Composes:** `OpenTask` (see that section above) — `DashboardPage` re-exposes all of its methods and its two public locators directly, so calling them looks identical to inheritance.
 
 **Public locators:**
 
-| Locator           | Type      | Description                         |
-| ----------------- | --------- | ----------------------------------- |
-| `newTaskButton`   | `Locator` | "New Task" button (`#new-task-btn`) |
-| `pulseHeading`    | `Locator` | "Today's Pulse" heading             |
-| `upcomingHeading` | `Locator` | "Upcoming" heading                  |
+| Locator                | Type      | Description                                  |
+| ---------------------- | --------- | -------------------------------------------- |
+| `newTaskButton`        | `Locator` | "New Task" button (`#new-task-btn`)          |
+| `pulseHeading`         | `Locator` | "Today's Pulse" heading                      |
+| `upcomingHeading`      | `Locator` | "Upcoming" heading                           |
+| `openListEmptyMessage` | `Locator` | Delegated from `OpenTask` — see that section |
+| `expandOpenListButton` | `Locator` | Delegated from `OpenTask` — see that section |
 
 **Own methods:**
 
@@ -237,6 +270,41 @@ Adds open task list, expand button, and API-based task utilities.
 
 ---
 
+## OpenTasksPage
+
+**Fixture:** `openTasksPage` (authenticated)
+**Path:** `/open-tasks.html`
+**Extends:** `SiteBarMenu`. **Composes:** `OpenTask` and `Pagination` — re-exposes every method of both through delegation wrappers, same as `DashboardPage` does for `OpenTask`.
+
+**Public locators:**
+
+| Locator                | Type      | Description                                  |
+| ---------------------- | --------- | -------------------------------------------- |
+| `openListEmptyMessage` | `Locator` | Delegated from `OpenTask` — see that section |
+| `expandOpenListButton` | `Locator` | Delegated from `OpenTask` — see that section |
+
+**Methods:** all `OpenTask` methods (see that section) plus all `Pagination` methods (see that section) — both delegated, nothing else of its own yet.
+
+---
+
+## ClosedTasksPage
+
+**Fixture:** `closedTasksPage` (authenticated)
+**Path:** `/finished-tasks.html`
+**Extends:** `SiteBarMenu` (not `OpenTask` — a closed-tasks list is a different domain: tasks here are completed, not open). **Composes:** `Pagination` — re-exposes its methods through delegation wrappers.
+
+**Own methods:**
+
+| Method                        | Signature                            | Description                                                                                                                                                                                                                                                                                                                                                     |
+| ----------------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checkH1`                     | `(text: string) → Promise<this>`     | **Overrides** `Header.checkH1`. FIXME (app bug): `finished-tasks.html` renders two `<h1>` elements (sidebar logo + this page's own heading) — the inherited unscoped version would fail `toHaveCount(1)`. This override scopes to `<main>` so it checks the page's own heading specifically; remove the override once the app renders only one `<h1>` per page. |
+| `checkItemCountOnPage`        | `(expected: number) → Promise<this>` | Asserts the done list (`#done-list`) currently renders exactly `expected` task cards                                                                                                                                                                                                                                                                            |
+| `checkAllTasksMarkedComplete` | `() → Promise<this>`                 | Soft-asserts every task currently rendered in the done list has a checked checkbox and struck-through title — works on whichever page is currently shown, including after pagination navigation                                                                                                                                                                 |
+
+**Also has:** all `Pagination` methods (see that section).
+
+---
+
 ## LoginPage
 
 **Fixture:** `loginPage` (no auth injection — tests the login form itself)
@@ -291,33 +359,40 @@ Adds open task list, expand button, and API-based task utilities.
 
 ## Fixtures summary
 
-| Fixture name          | Type            | Page object     | Auth                    | Notes                                                          |
-| --------------------- | --------------- | --------------- | ----------------------- | -------------------------------------------------------------- |
-| `loginPage`           | auth-fixtures   | `LoginPage`     | none                    | Login form tests — no token injected                           |
-| `dashboardPage`       | auth-fixtures   | `DashboardPage` | token in sessionStorage | Standard authenticated tests                                   |
-| `newTaskPage`         | auth-fixtures   | `NewTaskPage`   | via `dashboardPage`     | Depends on `dashboardPage`; teardown via `deleteTaskByTitle()` |
-| `logoutPage`          | auth-fixtures   | `LogoutPage`    | none                    | Logout page tests — no token injected                          |
-| `unAuthDashboardPage` | noauth-fixtures | `DashboardPage` | none                    | Redirect tests — no token                                      |
-| `unAuthNewTaskPage`   | noauth-fixtures | `NewTaskPage`   | none                    | Redirect tests — no token                                      |
+| Fixture name          | Type            | Page object       | Auth                    | Notes                                                          |
+| --------------------- | --------------- | ----------------- | ----------------------- | -------------------------------------------------------------- |
+| `loginPage`           | auth-fixtures   | `LoginPage`       | none                    | Login form tests — no token injected                           |
+| `dashboardPage`       | auth-fixtures   | `DashboardPage`   | token in sessionStorage | Standard authenticated tests                                   |
+| `newTaskPage`         | auth-fixtures   | `NewTaskPage`     | via `dashboardPage`     | Depends on `dashboardPage`; teardown via `deleteTaskByTitle()` |
+| `openTasksPage`       | auth-fixtures   | `OpenTasksPage`   | token in sessionStorage | Standard authenticated tests                                   |
+| `closedTasksPage`     | auth-fixtures   | `ClosedTasksPage` | token in sessionStorage | Standard authenticated tests                                   |
+| `logoutPage`          | auth-fixtures   | `LogoutPage`      | none                    | Logout page tests — no token injected                          |
+| `unAuthDashboardPage` | noauth-fixtures | `DashboardPage`   | none                    | Redirect tests — no token                                      |
+| `unAuthNewTaskPage`   | noauth-fixtures | `NewTaskPage`     | none                    | Redirect tests — no token                                      |
 
 ---
 
 ## Test data
 
-| File                     | Exports                     | Contents                                                                                                                                                                                                                                         |
-| ------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `login_page_data.ts`     | `loginPageData`             | URLs, h1, h2 text                                                                                                                                                                                                                                |
-| `login_page_data.ts`     | `loginCredentials`          | `validUser`, `invalidUser` (username/password)                                                                                                                                                                                                   |
-| `login_page_data.ts`     | `negativeLoginCases`        | Array of `LoginTestCase` for data-driven negative login tests                                                                                                                                                                                    |
-| `dashboard_page_data.ts` | `dashboardPageData`         | `emptyListCount`, `taskPreviewLimit`, `emptyMessage`, `urlNewTaskPage`, `upcomingEmptyMessage`, `pulseSubtitle`, `pulseCountSuffix`, `upcomingLabelToday`, `upcomingLabelTomorrow`, `calculatorDivisionByZeroFault`, `calculatorOperatorSymbols` |
-| `dashboard_page_data.ts` | `calculatorTestData`        | Input/expected-result pairs for calculator atomic and E2E tests                                                                                                                                                                                  |
-| `dashboard_page_data.ts` | `generateUpcomingDueDates`  | Factory returning today/tomorrow/outsideWindow/overdue due-date strings for Upcoming widget tests                                                                                                                                                |
-| `dashboard_page_data.ts` | `generateUpcomingTaskTitle` | Factory returning a unique task title for Upcoming widget test teardown                                                                                                                                                                          |
-| `general.ts`             | `contactMeInfo`             | Footer contact `{ label, href }` entries: `github`, `email`, `linkedIn`                                                                                                                                                                          |
-| `logout_page_data.ts`    | `logoutPageData`            | h1 text                                                                                                                                                                                                                                          |
+| File                        | Exports                     | Contents                                                                                                                                                                                                                                         |
+| --------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `login_page_data.ts`        | `loginPageData`             | URLs, h1, h2 text                                                                                                                                                                                                                                |
+| `login_page_data.ts`        | `loginCredentials`          | `validUser`, `invalidUser` (username/password)                                                                                                                                                                                                   |
+| `login_page_data.ts`        | `negativeLoginCases`        | Array of `LoginTestCase` for data-driven negative login tests                                                                                                                                                                                    |
+| `dashboard_page_data.ts`    | `dashboardPageData`         | `emptyListCount`, `taskPreviewLimit`, `emptyMessage`, `urlNewTaskPage`, `upcomingEmptyMessage`, `pulseSubtitle`, `pulseCountSuffix`, `upcomingLabelToday`, `upcomingLabelTomorrow`, `calculatorDivisionByZeroFault`, `calculatorOperatorSymbols` |
+| `dashboard_page_data.ts`    | `calculatorTestData`        | Input/expected-result pairs for calculator atomic and E2E tests                                                                                                                                                                                  |
+| `dashboard_page_data.ts`    | `generateUpcomingDueDates`  | Factory returning today/tomorrow/outsideWindow/overdue due-date strings for Upcoming widget tests                                                                                                                                                |
+| `dashboard_page_data.ts`    | `generateUpcomingTaskTitle` | Factory returning a unique task title for Upcoming widget test teardown                                                                                                                                                                          |
+| `general.ts`                | `contactMeInfo`             | Footer contact `{ label, href }` entries: `github`, `email`, `linkedIn`                                                                                                                                                                          |
+| `logout_page_data.ts`       | `logoutPageData`            | h1 text                                                                                                                                                                                                                                          |
+| `closed_tasks_page_data.ts` | `closedTasksPageData`       | h1 text                                                                                                                                                                                                                                          |
+| `pagination_data.ts`        | `paginationData`            | `pageSize` (10) — the app's `PAGE_SIZE` constant, used to assert items-per-page                                                                                                                                                                  |
+| `pagination_data.ts`        | `generateRandomPageNumber`  | Factory (faker) returning a random page number in `[1, totalPages]`                                                                                                                                                                              |
+| `pagination_data.ts`        | `generateNonLastPageNumber` | Factory (faker) returning a random page number in `[1, totalPages - 1]` — guaranteed not the last (possibly partial) page                                                                                                                        |
 
 ## Types
 
-| File                                              | Exports                      | Description                                            |
-| ------------------------------------------------- | ---------------------------- | ------------------------------------------------------ |
-| `support/types/chronos/form-fields/login_form.ts` | `LoginForm`, `LoginTestCase` | Types for login form fields and data-driven test cases |
+| File                                              | Exports                      | Description                                                                                                                                                                                                                  |
+| ------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `support/types/chronos/form-fields/login_form.ts` | `LoginForm`, `LoginTestCase` | Types for login form fields and data-driven test cases                                                                                                                                                                       |
+| `support/types/chronos/todo.ts`                   | `Todo`                       | Shape of a todo/task as returned by the `/todos` API — `id`, `title`, `description?`, `completed`, `due_date?`. Use it (or a `Pick<Todo, ...>`) instead of redeclaring an inline anonymous type when casting an API response |
