@@ -26,6 +26,7 @@ export class DashboardPage extends SiteBarMenu {
   private readonly upcomingLabelToday: string
   private readonly upcomingLabelTomorrow: string
   private readonly newTaskRequestUrlFragment: string
+  private readonly newTaskUrlPattern: string
   private readonly taskDetailUrlPattern: RegExp
   private readonly calendarMonthLabel: Locator
   private readonly calendarCurrentMonthDays: Locator
@@ -61,6 +62,7 @@ export class DashboardPage extends SiteBarMenu {
     this.upcomingLabelToday = dashboardPageData.upcomingLabelToday
     this.upcomingLabelTomorrow = dashboardPageData.upcomingLabelTomorrow
     this.newTaskRequestUrlFragment = 'edit-task'
+    this.newTaskUrlPattern = '**/edit-task.html*'
     this.taskDetailUrlPattern = /task-detail\.html\?id=\d+&from=dashboard/
     const calendarDaysContainer = page.locator('#cal-days')
     this.calendarMonthLabel = page.locator('#cal-month-label')
@@ -206,6 +208,7 @@ export class DashboardPage extends SiteBarMenu {
   async clickButtonNewTask(): Promise<NewTaskPage> {
     const { NewTaskPage: NewTaskPageCtor } = await import('./new_task_page')
     await this.newTaskButton.click()
+    await this.page.waitForURL(this.newTaskUrlPattern)
     return new NewTaskPageCtor(this.page)
   }
 

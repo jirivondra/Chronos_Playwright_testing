@@ -6,12 +6,14 @@ export class LogoutPage extends ToTopButton {
   private readonly returnToLoginButton: Locator
   private readonly authStorageKey: string
   private readonly testAuthToken: string
+  private readonly loginUrlPattern: string
 
   constructor(page: Page) {
     super(page, '/logout.html')
     this.returnToLoginButton = page.getByRole('link', { name: 'Return to Login' })
     this.authStorageKey = 'auth'
     this.testAuthToken = 'test-token'
+    this.loginUrlPattern = '**/login.html'
   }
 
   async checkReturnToLoginVisible(): Promise<this> {
@@ -41,6 +43,7 @@ export class LogoutPage extends ToTopButton {
 
   async clickReturnToLogin(): Promise<LoginPage> {
     await this.returnToLoginButton.click()
+    await this.page.waitForURL(this.loginUrlPattern)
     return new LoginPage(this.page)
   }
 }
