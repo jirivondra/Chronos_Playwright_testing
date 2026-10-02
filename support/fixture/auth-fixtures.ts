@@ -73,7 +73,7 @@ export const authFixtures = base.extend<AuthFixtures>({
 
     await openTasksPage.clearCache()
   },
-  closedTasksPage: async ({ page }, use) => {
+  closedTasksPage: async ({ page, theme }, use) => {
     const token = Buffer.from(
       `${loginCredentials.validUser.username}:${loginCredentials.validUser.password}`
     ).toString('base64')
@@ -81,6 +81,9 @@ export const authFixtures = base.extend<AuthFixtures>({
     await page.context().addInitScript((t) => {
       sessionStorage.setItem('auth', t)
     }, token)
+    await page.addInitScript((t) => {
+      localStorage.setItem('theme', t)
+    }, theme)
 
     const closedTasksPage = new ClosedTasksPage(page)
 

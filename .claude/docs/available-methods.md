@@ -299,6 +299,7 @@ Composed into `OpenTasksPage` and `ClosedTasksPage` — the only two pages that 
 | ----------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `checkItemCountOnPage`        | `(expected: number) → Promise<this>` | Asserts the done list (`#done-list`) currently renders exactly `expected` task cards                                                                                                            |
 | `checkAllTasksMarkedComplete` | `() → Promise<this>`                 | Soft-asserts every task currently rendered in the done list has a checked checkbox and struck-through title — works on whichever page is currently shown, including after pagination navigation |
+| `checkHeaderSnapshot`         | `(name: string) → Promise<this>`     | Scoped screenshot of the static breadcrumb + h1 + subtitle block (the h1's own parent `<div>`) — not a full-page snapshot, so it isn't affected by the dynamic task list/pagination below it    |
 
 **Also has:** all `Pagination` methods (see that section).
 
@@ -358,16 +359,16 @@ Composed into `OpenTasksPage` and `ClosedTasksPage` — the only two pages that 
 
 ## Fixtures summary
 
-| Fixture name          | Type            | Page object       | Auth                    | Notes                                                          |
-| --------------------- | --------------- | ----------------- | ----------------------- | -------------------------------------------------------------- |
-| `loginPage`           | auth-fixtures   | `LoginPage`       | none                    | Login form tests — no token injected                           |
-| `dashboardPage`       | auth-fixtures   | `DashboardPage`   | token in sessionStorage | Standard authenticated tests                                   |
-| `newTaskPage`         | auth-fixtures   | `NewTaskPage`     | via `dashboardPage`     | Depends on `dashboardPage`; teardown via `deleteTaskByTitle()` |
-| `openTasksPage`       | auth-fixtures   | `OpenTasksPage`   | token in sessionStorage | Standard authenticated tests                                   |
-| `closedTasksPage`     | auth-fixtures   | `ClosedTasksPage` | token in sessionStorage | Standard authenticated tests                                   |
-| `logoutPage`          | auth-fixtures   | `LogoutPage`      | none                    | Logout page tests — no token injected                          |
-| `unAuthDashboardPage` | noauth-fixtures | `DashboardPage`   | none                    | Redirect tests — no token                                      |
-| `unAuthNewTaskPage`   | noauth-fixtures | `NewTaskPage`     | none                    | Redirect tests — no token                                      |
+| Fixture name          | Type            | Page object       | Auth                                            | Notes                                                                                                           |
+| --------------------- | --------------- | ----------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `loginPage`           | auth-fixtures   | `LoginPage`       | none                                            | Login form tests — no token injected                                                                            |
+| `dashboardPage`       | auth-fixtures   | `DashboardPage`   | token in sessionStorage                         | Standard authenticated tests                                                                                    |
+| `newTaskPage`         | auth-fixtures   | `NewTaskPage`     | via `dashboardPage`                             | Depends on `dashboardPage`; teardown via `deleteTaskByTitle()`                                                  |
+| `openTasksPage`       | auth-fixtures   | `OpenTasksPage`   | token in sessionStorage                         | Standard authenticated tests                                                                                    |
+| `closedTasksPage`     | auth-fixtures   | `ClosedTasksPage` | token in sessionStorage + theme in localStorage | Standard authenticated tests; the only auth fixture that also injects `theme`, needed for visual/snapshot tests |
+| `logoutPage`          | auth-fixtures   | `LogoutPage`      | none                                            | Logout page tests — no token injected                                                                           |
+| `unAuthDashboardPage` | noauth-fixtures | `DashboardPage`   | none                                            | Redirect tests — no token                                                                                       |
+| `unAuthNewTaskPage`   | noauth-fixtures | `NewTaskPage`     | none                                            | Redirect tests — no token                                                                                       |
 
 ---
 

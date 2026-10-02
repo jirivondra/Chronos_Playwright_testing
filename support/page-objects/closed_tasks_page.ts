@@ -7,6 +7,7 @@ export class ClosedTasksPage extends SiteBarMenu {
   private readonly doneList: Locator
   private readonly taskGroup: Locator
   private readonly completedTaskClass: RegExp
+  private readonly pageHeaderBlock: Locator
 
   constructor(page: Page) {
     super(page, '/finished-tasks.html')
@@ -14,6 +15,17 @@ export class ClosedTasksPage extends SiteBarMenu {
     this.doneList = page.locator('#done-list')
     this.taskGroup = page.locator('.group')
     this.completedTaskClass = /line-through/
+    // The breadcrumb + h1 + subtitle share one unlabelled <div>, which is the h1's own
+    // parent — scoping off the h1 avoids depending on a utility class name.
+    this.pageHeaderBlock = page
+      .locator('main')
+      .getByRole('heading', { level: 1 })
+      .locator('xpath=..')
+  }
+
+  async checkHeaderSnapshot(name: string): Promise<this> {
+    await expect(this.pageHeaderBlock).toHaveScreenshot(name)
+    return this
   }
 
   async checkItemCountOnPage(expected: number): Promise<this> {
