@@ -54,15 +54,19 @@ jobs:
       - name: Update visual snapshots
         run: npx playwright test --grep "Visual Tests" --update-snapshots
 
-      - name: Check for snapshot changes
+      - name: Check for snapshot changes and commit
         id: changes
         run: |
-          if git status --porcelain -- tests/regression/*.spec.ts-snapshots | grep -q .; then
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            git status --porcelain -- tests/regression/*.spec.ts-snapshots
-          else
+          git add tests/regression/*.spec.ts-snapshots
+          if git diff --cached --quiet; then
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
             echo "No snapshot changes detected"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            git status --porcelain
+            git -c user.name="github-actions[bot]" \
+                -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+                commit -m "chore: update visual regression snapshots"
           fi
 
       - name: Create Pull Request
@@ -70,7 +74,6 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore: update visual regression snapshots'
           title: 'Update Playwright visual snapshots'
           body: |
             Baseline PNGs regenerated on a Linux GitHub Actions runner via `--update-snapshots`.
