@@ -1,6 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test'
 import { SiteBarMenu } from './common/site_bar_menu'
 import { Pagination } from './common/pagination'
+import { Todo } from '../types/chronos/todo'
 
 export class ClosedTasksPage extends SiteBarMenu {
   private readonly pagination: Pagination
@@ -10,6 +11,7 @@ export class ClosedTasksPage extends SiteBarMenu {
   private readonly pageHeaderBlock: Locator
   private readonly sortOrderSelect: Locator
   private readonly pageSizeSelect: Locator
+  private readonly todosEndpoint: string
 
   constructor(page: Page) {
     super(page, '/finished-tasks.html')
@@ -17,6 +19,7 @@ export class ClosedTasksPage extends SiteBarMenu {
     this.doneList = page.locator('#done-list')
     this.taskGroup = page.locator('.group')
     this.completedTaskClass = /line-through/
+    this.todosEndpoint = '/todos'
     // The breadcrumb + h1 + subtitle share one unlabelled <div>, which is the h1's own
     // parent — scoping off the h1 avoids depending on a utility class name.
     this.pageHeaderBlock = page
@@ -63,6 +66,21 @@ export class ClosedTasksPage extends SiteBarMenu {
 
   async selectPageSize(value: number): Promise<this> {
     await this.pageSizeSelect.selectOption(String(value))
+    return this
+  }
+
+  async getCompletedTaskTitles(order: 'asc' | 'desc' = 'desc'): Promise<string[]> {
+    const response = await this.get(`${this.todosEndpoint}?order=${order}`)
+    const todos = (await response.json()) as Todo[]
+    return todos.filter((t) => t.completed).map((t) => t.title)
+  }
+
+  async checkDisplayedTaskTitlesOrder(expectedTitles: string[]): Promise<this> {
+    const actualTitles = await this.doneList
+      .locator(this.taskGroup)
+      .getByRole('heading')
+      .allTextContents()
+    expect(actualTitles).toEqual(expectedTitles)
     return this
   }
 

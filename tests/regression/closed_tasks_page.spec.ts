@@ -15,7 +15,7 @@ test.describe('Test Closed Tasks Page', () => {
     paginationVisible = await closedTasksPage.isPaginationVisible()
   })
 
-  test.describe('Atomic Tests For Closed Tasks', () => {
+  test.describe('Atomic Tests For Closed Tasks Page', () => {
     test('Check H1 On Page Closed Tasks', async ({ closedTasksPage }) => {
       await closedTasksPage.checkH1(closedTasksPageData.h1)
     })
@@ -41,9 +41,7 @@ test.describe('Test Closed Tasks Page', () => {
       test.skip(!paginationVisible)
       await closedTasksPage.checkPaginationVisible()
     })
-  })
 
-  test.describe('Atomic Tests For List Controls', () => {
     test('Check Sort Order Default Value', async ({ closedTasksPage }) => {
       await closedTasksPage.checkSortOrderValue(listControlsData.defaultSortOrder)
     })
@@ -92,6 +90,50 @@ test.describe('Test Closed Tasks Page', () => {
 
       await test.step('Verify tasks on this page are marked complete', async () => {
         await closedTasksPage.checkAllTasksMarkedComplete()
+      })
+    })
+  })
+
+  sortOrderCases.forEach(({ description, value }) => {
+    test.describe('E2E Test For Sort Order Change', () => {
+      test(`Selecting ${description} Reorders The Task List`, async ({ closedTasksPage }) => {
+        const expectedTitles = await test.step('Fetch expected order from the API', async () => {
+          const titles = await closedTasksPage.getCompletedTaskTitles(value)
+          return titles.slice(0, listControlsData.defaultPageSize)
+        })
+
+        await test.step('Select the sort order', async () => {
+          await closedTasksPage.selectSortOrder(value)
+          await closedTasksPage.checkSortOrderValue(value)
+        })
+
+        await test.step('Verify the task list reflects the new order', async () => {
+          await closedTasksPage.checkDisplayedTaskTitlesOrder(expectedTitles)
+        })
+      })
+    })
+  })
+
+  pageSizeCases.forEach(({ description, value }) => {
+    test.describe('E2E Test For Page Size Change', () => {
+      test(`Selecting ${description} Per Page Updates Visible Task Count`, async ({
+        closedTasksPage,
+      }) => {
+        test.skip(!paginationVisible)
+
+        const totalCompleted = await test.step('Fetch total completed task count', async () => {
+          const titles = await closedTasksPage.getCompletedTaskTitles()
+          return titles.length
+        })
+
+        await test.step('Select the page size', async () => {
+          await closedTasksPage.selectPageSize(value)
+          await closedTasksPage.checkPageSizeValue(value)
+        })
+
+        await test.step('Verify the visible item count matches the new page size', async () => {
+          await closedTasksPage.checkItemCountOnPage(Math.min(value, totalCompleted))
+        })
       })
     })
   })
