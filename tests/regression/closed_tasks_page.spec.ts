@@ -2,6 +2,11 @@ import { test } from '../../support/fixture'
 import { paginationData, generateNonLastPageNumber } from '../../support/test-data/pagination_data'
 import { closedTasksPageData } from '../../support/test-data/closed_tasks_page_data'
 import { themeCases } from '../../support/test-data/visual_testing_data'
+import {
+  listControlsData,
+  sortOrderCases,
+  pageSizeCases,
+} from '../../support/test-data/list_controls_data'
 
 test.describe('Test Closed Tasks Page', () => {
   let paginationVisible: boolean
@@ -35,6 +40,26 @@ test.describe('Test Closed Tasks Page', () => {
     }) => {
       test.skip(!paginationVisible)
       await closedTasksPage.checkPaginationVisible()
+    })
+  })
+
+  test.describe('Atomic Tests For List Controls', () => {
+    test('Check Sort Order Default Value', async ({ closedTasksPage }) => {
+      await closedTasksPage.checkSortOrderValue(listControlsData.defaultSortOrder)
+    })
+
+    test('Check Sort Order Options', async ({ closedTasksPage }) => {
+      await closedTasksPage.checkSortOrderOptions(sortOrderCases.map((c) => c.label))
+    })
+
+    test('Check Page Size Default Value', async ({ closedTasksPage }) => {
+      test.skip(!paginationVisible)
+      await closedTasksPage.checkPageSizeValue(listControlsData.defaultPageSize)
+    })
+
+    test('Check Page Size Options', async ({ closedTasksPage }) => {
+      test.skip(!paginationVisible)
+      await closedTasksPage.checkPageSizeOptions(pageSizeCases.map((c) => c.value))
     })
   })
 

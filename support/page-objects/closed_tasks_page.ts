@@ -8,6 +8,8 @@ export class ClosedTasksPage extends SiteBarMenu {
   private readonly taskGroup: Locator
   private readonly completedTaskClass: RegExp
   private readonly pageHeaderBlock: Locator
+  private readonly sortOrderSelect: Locator
+  private readonly pageSizeSelect: Locator
 
   constructor(page: Page) {
     super(page, '/finished-tasks.html')
@@ -21,10 +23,46 @@ export class ClosedTasksPage extends SiteBarMenu {
       .locator('main')
       .getByRole('heading', { level: 1 })
       .locator('xpath=..')
+    this.sortOrderSelect = page.locator('#sort-order')
+    this.pageSizeSelect = page.locator('#page-size')
   }
 
   async checkHeaderSnapshot(name: string): Promise<this> {
     await expect(this.pageHeaderBlock).toHaveScreenshot(name)
+    return this
+  }
+
+  async checkSortOrderValue(value: string): Promise<this> {
+    await expect(this.sortOrderSelect).toHaveValue(value)
+    return this
+  }
+
+  async checkSortOrderOptions(labels: string[]): Promise<this> {
+    await expect(this.sortOrderSelect.locator('option')).toHaveText(labels)
+    return this
+  }
+
+  async selectSortOrder(value: string): Promise<this> {
+    await this.sortOrderSelect.selectOption(value)
+    return this
+  }
+
+  async isPageSizeSelectorVisible(): Promise<boolean> {
+    return this.pageSizeSelect.isVisible()
+  }
+
+  async checkPageSizeValue(value: number): Promise<this> {
+    await expect(this.pageSizeSelect).toHaveValue(String(value))
+    return this
+  }
+
+  async checkPageSizeOptions(values: number[]): Promise<this> {
+    await expect(this.pageSizeSelect.locator('option')).toHaveText(values.map(String))
+    return this
+  }
+
+  async selectPageSize(value: number): Promise<this> {
+    await this.pageSizeSelect.selectOption(String(value))
     return this
   }
 
