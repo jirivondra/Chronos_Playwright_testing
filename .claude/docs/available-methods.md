@@ -108,9 +108,10 @@ Adds back-to-top button assertions and interaction.
 
 Adds top navigation bar with logout action.
 
-| Method        | Signature                  | Description                                            |
-| ------------- | -------------------------- | ------------------------------------------------------ |
-| `clickLogout` | `() → Promise<LogoutPage>` | Clicks logout link — returns `LogoutPage` (chain ends) |
+| Method                   | Signature                        | Description                                                                                                                                                                                     |
+| ------------------------ | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `clickLogout`            | `() → Promise<LogoutPage>`       | Clicks logout link — returns `LogoutPage` (chain ends)                                                                                                                                          |
+| `checkTopHeaderSnapshot` | `(name: string) → Promise<this>` | Scoped screenshot of the top `<header>` (`getByRole('banner')`), masking `.mech-clock` (live, updates every second) and `#theme-toggle` (its icon reflects the current theme/system preference) |
 
 ---
 
