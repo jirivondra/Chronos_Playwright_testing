@@ -146,5 +146,9 @@ themeCases.forEach(({ description, theme }) => {
     test(`Closed Tasks Header Matches ${description} Snapshot`, async ({ closedTasksPage }) => {
       await closedTasksPage.checkHeaderSnapshot(`closed-tasks-header-${theme}.png`)
     })
+
+    test(`Closed Tasks Sidebar Matches ${description} Snapshot`, async ({ closedTasksPage }) => {
+      await closedTasksPage.checkSidebarSnapshot(`closed-tasks-sidebar-${theme}.png`)
+    })
   })
 })

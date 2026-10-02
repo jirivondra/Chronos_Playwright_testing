@@ -8,6 +8,7 @@ export class SiteBarMenu extends AppBar {
   protected appVersionTitleText: string
 
   private readonly sidebar: Locator
+  private readonly appVersionValue: Locator
   private readonly logoImage: Locator
   private readonly logoTitle: Locator
   private readonly logoSubtitle: Locator
@@ -42,6 +43,9 @@ export class SiteBarMenu extends AppBar {
     this.appVersion = page.getByText(this.appVersionTitleText)
 
     this.sidebar = page.locator('#sidebar')
+    // The actual version number (e.g. "v1.0.0"), fetched from assets/version.json — distinct
+    // from appVersion/appVersionTitle above, which both target the static "App version" label.
+    this.appVersionValue = page.locator('#app-version')
 
     this.logoTitleText = 'Chronos'
     this.logoSubtitleText = 'Personal Space'
@@ -128,6 +132,11 @@ export class SiteBarMenu extends AppBar {
 
   async checkLogoImageVisible(): Promise<this> {
     await expect(this.logoImage).toBeVisible()
+    return this
+  }
+
+  async checkSidebarSnapshot(name: string): Promise<this> {
+    await expect(this.sidebar).toHaveScreenshot(name, { mask: [this.appVersionValue] })
     return this
   }
 
