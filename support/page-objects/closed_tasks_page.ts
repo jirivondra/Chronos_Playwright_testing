@@ -7,7 +7,6 @@ export class ClosedTasksPage extends SiteBarMenu {
   private readonly doneList: Locator
   private readonly taskGroup: Locator
   private readonly completedTaskClass: RegExp
-  private readonly pageHeading: Locator
 
   constructor(page: Page) {
     super(page, '/finished-tasks.html')
@@ -15,19 +14,6 @@ export class ClosedTasksPage extends SiteBarMenu {
     this.doneList = page.locator('#done-list')
     this.taskGroup = page.locator('.group')
     this.completedTaskClass = /line-through/
-    // FIXME: finished-tasks.html renders two <h1> elements — the sidebar "Chronos" logo
-    // and this page's own "Closed Tasks" heading. Only one <h1> per page is valid
-    // semantic HTML; this should be fixed in the app (likely by demoting the logo to a
-    // non-heading element or a lower heading level). Scoping to <main> works around it
-    // until then — remove this override once the app only renders one <h1>.
-    this.pageHeading = page.locator('main').getByRole('heading', { level: 1 })
-  }
-
-  async checkH1(text: string): Promise<this> {
-    await expect.soft(this.pageHeading).toBeVisible()
-    await expect.soft(this.pageHeading).toHaveCount(1)
-    await expect.soft(this.pageHeading).toHaveText(text)
-    return this
   }
 
   async checkItemCountOnPage(expected: number): Promise<this> {

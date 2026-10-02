@@ -14,9 +14,7 @@ test.describe('Test Closed Tasks Page', () => {
       await closedTasksPage.checkH1(closedTasksPageData.h1)
     })
 
-    // FIXME: finished-tasks.html renders two <h1> elements (sidebar logo + page heading).
-    // Skipped until the app fixes it — see FIXME in site_bar_menu.ts.
-    test.skip('Check Only One H1 On Page Closed Tasks', async ({ closedTasksPage }) => {
+    test('Check Only One H1 On Page Closed Tasks', async ({ closedTasksPage }) => {
       await closedTasksPage.checkOnlyOneH1()
     })
 

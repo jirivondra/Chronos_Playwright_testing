@@ -46,12 +46,9 @@ export class SiteBarMenu extends AppBar {
     this.logoTitleText = 'Chronos'
     this.logoSubtitleText = 'Personal Space'
     this.logoImage = page.getByRole('img', { name: this.logoTitleText })
-    // FIXME: the sidebar logo is itself rendered as an <h1>, same role/level as a page's
-    // own content heading (e.g. ClosedTasksPage's "Closed Tasks" <h1>). A page should have
-    // exactly one <h1> — its own content heading — so the app should demote this logo to a
-    // non-heading element (or a lower heading level), not the other way round. Scoping to
-    // #sidebar is a stopgap so this locator still resolves to one element meanwhile.
-    this.logoTitle = this.sidebar.getByRole('heading', { level: 1 })
+    // The sidebar logo is a <p>, not a heading — the app fixed the duplicate-<h1> bug by
+    // demoting this logo rather than the page's own content heading. See Header.checkOnlyOneH1.
+    this.logoTitle = this.sidebar.getByText(this.logoTitleText, { exact: true })
     this.logoSubtitle = page.getByText(this.logoSubtitleText)
 
     this.navDashboardText = 'Dashboard'

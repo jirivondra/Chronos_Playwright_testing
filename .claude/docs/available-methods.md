@@ -67,7 +67,7 @@ First class in the chain that adds assertion methods. Adds `h1`/`h2` locators an
 | `checkUrl`       | `(url: string) → Promise<this>`  | Asserts current URL equals `url`                                                                                                                                                                                             |
 | `checkH1`        | `(text: string) → Promise<this>` | Soft-asserts h1 is visible, count=1, has text                                                                                                                                                                                |
 | `checkH2`        | `(text: string) → Promise<this>` | Soft-asserts h2 is visible and has text                                                                                                                                                                                      |
-| `checkOnlyOneH1` | `() → Promise<this>`             | Generic, page-agnostic structural check: asserts the whole page has exactly one `<h1>`. Currently failing (skipped) on `open-tasks.html`, `finished-tasks.html`, and `edit-task.html` — see the FIXME in `site_bar_menu.ts`. |
+| `checkOnlyOneH1` | `() → Promise<this>`             | Generic, page-agnostic structural check: asserts the whole page has exactly one `<h1>`. |
 
 ---
 
@@ -116,9 +116,9 @@ Adds top navigation bar with logout action.
 
 ## SiteBarMenu
 
-Adds sidebar menu with logo, navigation links, and app version. All logo/nav locators are scoped to `#sidebar` — necessary because `OpenTasksPage`/`ClosedTasksPage` render a breadcrumb with its own "Dashboard"-named link and their own content `<h1>`, both of which would otherwise collide with these locators if left unscoped to the whole page.
+Adds sidebar menu with logo, navigation links, and app version. All logo/nav locators are scoped to `#sidebar` — necessary because `OpenTasksPage`/`ClosedTasksPage` render a breadcrumb with its own "Dashboard"-named link, which would otherwise collide with `navDashboardLink` if left unscoped to the whole page.
 
-**FIXME (app bug):** the sidebar logo ("Chronos") is itself rendered as an `<h1>`, the same role/level as a page's own content heading. A page should have exactly one `<h1>` — its own content heading (e.g. `ClosedTasksPage`'s "Closed Tasks") — so the app should demote the logo to a non-heading element, not the other way round. `logoTitle` scopes to `#sidebar` as a stopgap so the locator resolves to one element meanwhile; remove that scoping once the app is fixed.
+The sidebar logo ("Chronos") used to be rendered as an `<h1>`, duplicating a page's own content heading — the app fixed this by demoting the logo to a `<p>` (not by changing the page's own heading), so `logoTitle` now matches it by text instead of by heading role. See `Header.checkOnlyOneH1`.
 
 | Method                          | Signature            | Description                                                                                         |
 | ------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------- |
@@ -297,7 +297,6 @@ Composed into `OpenTasksPage` and `ClosedTasksPage` — the only two pages that 
 
 | Method                        | Signature                            | Description                                                                                                                                                                                                                                                                                                                                                     |
 | ----------------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `checkH1`                     | `(text: string) → Promise<this>`     | **Overrides** `Header.checkH1`. FIXME (app bug): `finished-tasks.html` renders two `<h1>` elements (sidebar logo + this page's own heading) — the inherited unscoped version would fail `toHaveCount(1)`. This override scopes to `<main>` so it checks the page's own heading specifically; remove the override once the app renders only one `<h1>` per page. |
 | `checkItemCountOnPage`        | `(expected: number) → Promise<this>` | Asserts the done list (`#done-list`) currently renders exactly `expected` task cards                                                                                                                                                                                                                                                                            |
 | `checkAllTasksMarkedComplete` | `() → Promise<this>`                 | Soft-asserts every task currently rendered in the done list has a checked checkbox and struck-through title — works on whichever page is currently shown, including after pagination navigation                                                                                                                                                                 |
 
